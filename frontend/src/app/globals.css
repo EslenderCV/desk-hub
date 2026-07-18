@@ -1,0 +1,573 @@
+:root {
+  --bg-main: #06090f;
+  --bg-surface: #0d111a;
+  --bg-muted: #161b22;
+  --border-color: #21262d;
+  --text-primary: #c9d1d9;
+  --text-secondary: #8b949e;
+  --color-accent: #58a6ff;
+  --color-success: #2ea44f;
+  --font-mono: ui-monospace, SFMono-Regular, SF Pro Mono, Menlo, Monaco, Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  line-height: 1.6;
+  padding: 2rem;
+}
+
+.console-frame {
+  max-width: 1200px;
+  margin: 0 auto;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-surface);
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Console Top Bar */
+.console-topbar {
+  background: var(--bg-muted);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.window-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.control-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #21262d;
+}
+
+/* Grid Layout */
+.console-body {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 75vh;
+}
+
+@media (max-width: 768px) {
+  .console-body { grid-template-columns: 1fr; }
+}
+
+/* Sidebar Navigation Matrix */
+.console-sidebar {
+  border-right: 1px solid var(--border-color);
+  background: #090d13;
+  padding: 2rem 1.5rem;
+}
+
+.profile-block {
+  margin-bottom: 2.5rem;
+}
+
+.profile-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.03em;
+}
+
+.profile-role {
+  font-size: 0.85rem;
+  color: var(--color-accent);
+  margin-top: 0.25rem;
+}
+
+.nav-group {
+  margin-bottom: 2rem;
+}
+
+.nav-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+}
+
+.nav-item.active {
+  background: var(--bg-muted);
+  border: 1px solid var(--border-color);
+  color: #fff;
+}
+
+/* Main Display Area */
+.console-content {
+  padding: 3rem;
+  overflow-y: auto;
+}
+
+.content-section {
+  margin-bottom: 4rem;
+}
+
+.section-title {
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #fff;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Dynamic Performance Profile Grid */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.metric-card {
+  background: #090d13;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 1.25rem;
+}
+
+.metric-header {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.metric-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  margin-top: 0.25rem;
+}
+
+/* Engineering Project Ledger Cards */
+.ledger-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ledger-row {
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 200px;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+@media (max-width: 640px) {
+  .ledger-row { grid-template-columns: 1fr; }
+}
+
+.ledger-title {
+  font-size: 1.1rem;
+  color: #fff;
+  font-weight: 600;
+}
+
+.ledger-desc {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+}
+
+.tech-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 1rem;
+}
+
+.tag {
+  background: var(--bg-muted);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+}
+
+.social-container {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.social-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.social-link:hover {
+  color: var(--color-accent);
+}
+
+:root {
+  --bg-main: #06090f;
+  --bg-surface: #0d111a;
+  --bg-muted: #161b22;
+  --border-color: #21262d;
+  --text-primary: #c9d1d9;
+  --text-secondary: #8b949e;
+  --color-accent: #58a6ff;
+  --color-success: #2ea44f;
+  --font-mono: ui-monospace, SFMono-Regular, SF Pro Mono, Menlo, Monaco, Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  line-height: 1.6;
+  padding: 2rem;
+}
+
+.console-frame {
+  max-width: 1200px;
+  margin: 0 auto;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-surface);
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Console Top Bar */
+.console-topbar {
+  background: var(--bg-muted);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.window-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.control-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #21262d;
+}
+
+/* Grid Layout */
+.console-body {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 75vh;
+}
+
+@media (max-width: 768px) {
+  .console-body { grid-template-columns: 1fr; }
+}
+
+/* Sidebar Navigation Matrix */
+.console-sidebar {
+  border-right: 1px solid var(--border-color);
+  background: #090d13;
+  padding: 2rem 1.5rem;
+}
+
+.profile-block {
+  margin-bottom: 2.5rem;
+}
+
+.profile-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.03em;
+}
+
+.profile-role {
+  font-size: 0.85rem;
+  color: var(--color-accent);
+  margin-top: 0.25rem;
+}
+
+.nav-group {
+  margin-bottom: 2rem;
+}
+
+.nav-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+}
+
+.nav-item.active {
+  background: var(--bg-muted);
+  border: 1px solid var(--border-color);
+  color: #fff;
+}
+
+/* Main Display Area */
+.console-content {
+  padding: 3rem;
+  overflow-y: auto;
+}
+
+.content-section {
+  margin-bottom: 4rem;
+}
+
+.section-title {
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #fff;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Dynamic Performance Profile Grid */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.metric-card {
+  background: #090d13;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 1.25rem;
+}
+
+.metric-header {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.metric-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  margin-top: 0.25rem;
+}
+
+/* Engineering Project Ledger Cards */
+.ledger-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ledger-row {
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 200px;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+@media (max-width: 640px) {
+  .ledger-row { grid-template-columns: 1fr; }
+}
+
+.ledger-title {
+  font-size: 1.1rem;
+  color: #fff;
+  font-weight: 600;
+}
+
+.ledger-desc {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+}
+
+.tech-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 1rem;
+}
+
+.tag {
+  background: var(--bg-muted);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+}
+
+.social-container {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.social-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.social-link:hover {
+  color: var(--color-accent);
+}
+
+/* Social Icon Layout Rules */
+.social-container {
+  display: flex;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+  align-items: center;
+}
+
+.social-btn {
+  color: var(--text-secondary);
+  transition: color 0.2s ease, transform 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.social-btn:hover {
+  color: var(--color-accent);
+  transform: translateY(-2px);
+}
+
+.social-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+/* Contact Module Styles */
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.contact-card {
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 1.25rem;
+  transition: border-color 0.2s ease;
+}
+
+.contact-card:hover {
+  border-color: var(--color-accent);
+}
+
+.contact-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.contact-value {
+  font-size: 0.95rem;
+  color: #fff;
+}
+
+.contact-value a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.contact-value a:hover {
+  text-decoration: underline;
+}
+
+/* Language Switcher Utilities */
+.lang-btn {
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lang-btn:hover {
+  border-color: var(--color-accent);
+  color: #fff;
+}

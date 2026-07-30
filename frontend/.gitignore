@@ -39,3 +39,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Pi-hole runtime databases & logs
+infrastructure/etc-pihole/*.db*
+infrastructure/etc-pihole/*.leases
+infrastructure/etc-pihole/listCache/
+infrastructure/etc-pihole/config_backups/
+
+# General
+.DS_Store
+*.log

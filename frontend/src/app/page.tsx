@@ -78,7 +78,7 @@ export default function Home() {
             
             <div className="social-container">
               <a 
-                href="https://linkedin.com/in/YOUR_USERNAME" 
+                href="https://linkedin.com/in/eslender-cruz" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="social-btn"
@@ -89,7 +89,7 @@ export default function Home() {
                 </svg>
               </a>
               <a 
-                href="https://github.com/YOUR_USERNAME" 
+                href="https://github.com/EslenderCV" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="social-btn"

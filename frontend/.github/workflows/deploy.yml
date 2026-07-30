@@ -1,0 +1,19 @@
+name: Deploy Desk Hub Stack
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Rebuild and deploy Docker stack
+        run: |
+          cd infrastructure
+          docker compose up -d --build

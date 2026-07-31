@@ -7,29 +7,43 @@ dotenv.config();
 const WS_PORT = parseInt(process.env.WS_PORT || '8080', 10);
 const MQTT_BROKER_URL = process.env.MQTT_BROKER_URL || 'mqtt://localhost:1883';
 
-// 1. MQTT Client Initialization
 const mqttClient = mqtt.connect(MQTT_BROKER_URL);
 
 mqttClient.on('connect', () => {
-    // Explicitly pass an empty options object to match the second parameter overload
-    mqttClient.subscribe('home/desk/+', {}, (err: Error | null) => {
+    mqttClient.subscribe('home/desk/+', {}, (err) => {
         if (!err) {
-            console.log(`MQTT: Subscribed to telemetry topics at ${MQTT_BROKER_URL}`);
+            broadcastLog('SYSTEM', `MQTT connected & subscribed to home/desk/+`);
         }
     });
 });
 
 mqttClient.on('message', (topic: string, message: Buffer) => {
-    console.log(`MQTT Ingestion [${topic}]: ${message.toString()}`);
+    broadcastLog('MQTT', `[${topic}]: ${message.toString()}`);
 });
 
-// 2. WebSocket Server Initialization
 const wss = new WebSocketServer({ port: WS_PORT });
 
 console.log(`Smart Desk Core: WebSocket pipeline listening on port ${WS_PORT}`);
 
+// Helper to send typed events/logs to ALL connected WebSocket clients
+function broadcastLog(type: 'MQTT' | 'WS' | 'SYSTEM' | 'AUDIO', message: string, payload?: object) {
+    const logEvent = JSON.stringify({
+        type: 'HUB_LOG',
+        timestamp: new Date().toISOString(),
+        source: type,
+        message,
+        payload
+    });
+
+    wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(logEvent);
+        }
+    });
+}
+
 wss.on('connection', (ws: WebSocket) => {
-    console.log('Hardware Node Connected via WebSocket');
+    broadcastLog('SYSTEM', 'Hardware Node / Client Connected via WebSocket');
 
     ws.on('message', (data: Buffer, isBinary: boolean) => {
         if (isBinary) {
@@ -40,28 +54,29 @@ wss.on('connection', (ws: WebSocket) => {
     });
 
     ws.on('close', () => {
-        console.log('Hardware Node Disconnected');
+        broadcastLog('SYSTEM', 'Hardware Node / Client Disconnected');
     });
 
-    // Explicitly type the error parameter to satisfy strict null/any checks
     ws.on('error', (error: Error) => {
-        console.error(`Socket error: ${error.message}`);
+        broadcastLog('SYSTEM', `Socket error: ${error.message}`);
     });
 });
 
 function handleBinaryAudioStream(buffer: Buffer) {
-    console.log(`Received audio binary chunk: ${buffer.length} bytes`);
+    broadcastLog('AUDIO', `Received raw PCM chunk: ${buffer.length} bytes`);
 }
 
 function handleTextCommand(commandStr: string, ws: WebSocket) {
     try {
         const payload = JSON.parse(commandStr);
-        console.log('Received structural payload:', payload);
-        
-        if (payload.event === 'desk_presence' && payload.status === 'active') {
-            mqttClient.publish('home/desk/state', 'occupied');
+        broadcastLog('WS', `Received payload: ${JSON.stringify(payload)}`, payload);
+
+        if (payload.event === 'desk_presence') {
+            const newState = payload.status === 'active' ? 'occupied' : 'vacant';
+            mqttClient.publish('home/desk/state', newState);
+            broadcastLog('MQTT', `Published to home/desk/state -> ${newState}`);
         }
     } catch (e) {
-        console.log(`Raw text payload received: ${commandStr}`);
+        broadcastLog('WS', `Raw command received: ${commandStr}`);
     }
 }

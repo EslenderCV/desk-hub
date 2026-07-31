@@ -1,6 +1,8 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import * as mqtt from 'mqtt';
 import * as dotenv from 'dotenv';
+import * as os from 'os';
+import * as fs from 'fs';
 
 dotenv.config();
 
@@ -25,7 +27,52 @@ const wss = new WebSocketServer({ port: WS_PORT });
 
 console.log(`Smart Desk Core: WebSocket pipeline listening on port ${WS_PORT}`);
 
-// Helper to send typed events/logs to ALL connected WebSocket clients
+// Helper to extract CPU temperature on Raspberry Pi / Linux
+function getCpuTemperature(): number {
+    try {
+        const rawTemp = fs.readFileSync('/sys/class/thermal/thermal_zone0/temp', 'utf8');
+        return Math.round(parseInt(rawTemp.trim(), 10) / 1000);
+    } catch {
+        return 0; // Fallback if non-Linux environment
+    }
+}
+
+// Compute host telemetry metrics
+function getSystemTelemetry() {
+    const totalMem = os.totalmem();
+    const freeMem = os.freemem();
+    const ramUsagePct = Math.round(((totalMem - freeMem) / totalMem) * 100);
+
+    const loadAvg = os.loadavg()[0]; // 1-min load average
+    const cpuCount = os.cpus().length || 1;
+    const cpuUsagePct = Math.min(Math.round((loadAvg / cpuCount) * 100), 100);
+
+    return {
+        cpuTemp: getCpuTemperature(),
+        cpuUsage: cpuUsagePct,
+        ramUsage: ramUsagePct,
+        totalRamGb: (totalMem / (1024 ** 3)).toFixed(1),
+        usedRamGb: ((totalMem - freeMem) / (1024 ** 3)).toFixed(1),
+        uptimeSec: Math.floor(os.uptime()),
+    };
+}
+
+// Broadcast telemetry to UI every 2 seconds
+setInterval(() => {
+    const telemetry = getSystemTelemetry();
+    const payload = JSON.stringify({
+        type: 'SYSTEM_TELEMETRY',
+        timestamp: new Date().toISOString(),
+        data: telemetry
+    });
+
+    wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(payload);
+        }
+    });
+}, 2000);
+
 function broadcastLog(type: 'MQTT' | 'WS' | 'SYSTEM' | 'AUDIO', message: string, payload?: object) {
     const logEvent = JSON.stringify({
         type: 'HUB_LOG',
@@ -47,7 +94,7 @@ wss.on('connection', (ws: WebSocket) => {
 
     ws.on('message', (data: Buffer, isBinary: boolean) => {
         if (isBinary) {
-            handleBinaryAudioStream(data);
+            broadcastLog('AUDIO', `Received raw PCM chunk: ${data.length} bytes`);
         } else {
             handleTextCommand(data.toString(), ws);
         }
@@ -62,10 +109,6 @@ wss.on('connection', (ws: WebSocket) => {
     });
 });
 
-function handleBinaryAudioStream(buffer: Buffer) {
-    broadcastLog('AUDIO', `Received raw PCM chunk: ${buffer.length} bytes`);
-}
-
 function handleTextCommand(commandStr: string, ws: WebSocket) {
     try {
         const payload = JSON.parse(commandStr);
@@ -76,7 +119,7 @@ function handleTextCommand(commandStr: string, ws: WebSocket) {
             mqttClient.publish('home/desk/state', newState);
             broadcastLog('MQTT', `Published to home/desk/state -> ${newState}`);
         }
-    } catch (e) {
+    } catch {
         broadcastLog('WS', `Raw command received: ${commandStr}`);
     }
 }

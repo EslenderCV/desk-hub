@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
 
@@ -10,12 +10,29 @@ interface LogEntry {
   payload?: any;
 }
 
+interface TelemetryData {
+  cpuTemp: number;
+  cpuUsage: number;
+  ramUsage: number;
+  totalRamGb: string;
+  usedRamGb: string;
+  uptimeSec: number;
+}
+
 export const DeskDashboard: React.FC<{ wsUrl?: string }> = ({ 
   wsUrl = 'ws://eslender-hub.local:8081' 
 }) => {
   const [connectionStatus, setConnectionStatus] = useState<'CONNECTING' | 'ONLINE' | 'OFFLINE'>('CONNECTING');
   const [deskState, setDeskState] = useState<'occupied' | 'vacant' | 'unknown'>('unknown');
   const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [telemetry, setTelemetry] = useState<TelemetryData>({
+    cpuTemp: 0,
+    cpuUsage: 0,
+    ramUsage: 0,
+    totalRamGb: '0',
+    usedRamGb: '0',
+    uptimeSec: 0,
+  });
   const [autoScroll, setAutoScroll] = useState<boolean>(true);
   const logContainerRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<WebSocket | null>(null);
@@ -32,7 +49,9 @@ export const DeskDashboard: React.FC<{ wsUrl?: string }> = ({
         try {
           const data = JSON.parse(event.data);
           
-          if (data.type === 'HUB_LOG') {
+          if (data.type === 'SYSTEM_TELEMETRY') {
+            setTelemetry(data.data);
+          } else if (data.type === 'HUB_LOG') {
             const newLog: LogEntry = {
               id: Math.random().toString(36).substr(2, 9),
               timestamp: new Date(data.timestamp).toLocaleTimeString(),
@@ -41,9 +60,8 @@ export const DeskDashboard: React.FC<{ wsUrl?: string }> = ({
               payload: data.payload,
             };
 
-            setLogs((prev) => [...prev.slice(-199), newLog]); // Keep last 200 logs
+            setLogs((prev) => [...prev.slice(-199), newLog]);
 
-            // Track desk presence state updates
             if (data.payload?.event === 'desk_presence') {
               setDeskState(data.payload.status === 'active' ? 'occupied' : 'vacant');
             }
@@ -55,7 +73,7 @@ export const DeskDashboard: React.FC<{ wsUrl?: string }> = ({
 
       ws.onclose = () => {
         setConnectionStatus('OFFLINE');
-        setTimeout(connect, 3000); // Auto reconnect
+        setTimeout(connect, 3000);
       };
 
       ws.onerror = () => ws.close();
@@ -80,9 +98,22 @@ export const DeskDashboard: React.FC<{ wsUrl?: string }> = ({
     }
   };
 
+  const formatUptime = (seconds: number) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    return `${hrs}h ${mins}m`;
+  };
+
+  const getTempColor = (temp: number) => {
+    if (temp <= 0) return '#9CA3AF';
+    if (temp < 55) return '#10B981'; // Cool Green
+    if (temp < 70) return '#F59E0B'; // Warm Yellow
+    return '#EF4444'; // Hot Red
+  };
+
   return (
     <div style={styles.container}>
-      {/* Header & Health Cards */}
+      {/* Header */}
       <header style={styles.header}>
         <h1 style={styles.title}>DESK HUB // CORE OPERATIONS</h1>
         <div style={styles.badgeGroup}>
@@ -95,7 +126,7 @@ export const DeskDashboard: React.FC<{ wsUrl?: string }> = ({
         </div>
       </header>
 
-      {/* Metrics Row */}
+      {/* Primary Metrics Grid */}
       <div style={styles.grid}>
         <div style={styles.card}>
           <div style={styles.cardLabel}>DESK PRESENCE</div>
@@ -108,14 +139,38 @@ export const DeskDashboard: React.FC<{ wsUrl?: string }> = ({
         </div>
 
         <div style={styles.card}>
-          <div style={styles.cardLabel}>MQTT BROKER</div>
-          <div style={{ ...styles.cardValue, color: '#10B981' }}>
+          <div style={styles.cardLabel}>PI 5 CPU TEMP</div>
+          <div style={{ ...styles.cardValue, color: getTempColor(telemetry.cpuTemp) }}>
+            {telemetry.cpuTemp > 0 ? `${telemetry.cpuTemp}°C` : 'N/A'}
+          </div>
+        </div>
+
+        <div style={styles.card}>
+          <div style={styles.cardLabel}>CPU / RAM USAGE</div>
+          <div style={{ ...styles.cardValue, color: '#3B82F6' }}>
+            {telemetry.cpuUsage}% <span style={{ color: '#64748B', fontSize: '14px' }}>CPU</span> | {telemetry.ramUsage}% <span style={{ color: '#64748B', fontSize: '14px' }}>RAM</span>
+          </div>
+        </div>
+
+        <div style={styles.card}>
+          <div style={styles.cardLabel}>PI HOST UPTIME</div>
+          <div style={{ ...styles.cardValue, color: '#8B5CF6' }}>
+            {formatUptime(telemetry.uptimeSec)}
+          </div>
+        </div>
+      </div>
+
+      {/* Control Actions Row */}
+      <div style={{ ...styles.grid, gridTemplateColumns: '1fr 1fr', marginBottom: '24px' }}>
+        <div style={styles.card}>
+          <div style={styles.cardLabel}>MQTT BROKER ADDRESS</div>
+          <div style={{ ...styles.cardValue, color: '#10B981', fontSize: '16px' }}>
             mqtt://mqtt_broker:1883
           </div>
         </div>
 
         <div style={styles.card}>
-          <div style={styles.cardLabel}>QUICK CONTROLS</div>
+          <div style={styles.cardLabel}>QUICK EVENT SIMULATOR</div>
           <div style={styles.buttonGroup}>
             <button style={styles.btnSuccess} onClick={() => sendPresenceTrigger('active')}>
               Simulate Occupied
@@ -173,7 +228,7 @@ const styles: Record<string, React.CSSProperties> = {
   title: { fontSize: '20px', fontWeight: 'bold', letterSpacing: '1px' },
   badgeGroup: { display: 'flex', gap: '12px' },
   statusBadge: { padding: '6px 12px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold', color: '#FFF' },
-  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '24px' },
+  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginBottom: '16px' },
   card: { backgroundColor: '#1E293B', padding: '16px', borderRadius: '8px', border: '1px solid #334155' },
   cardLabel: { fontSize: '11px', color: '#94A3B8', marginBottom: '8px', letterSpacing: '0.5px' },
   cardValue: { fontSize: '18px', fontWeight: 'bold' },
@@ -184,8 +239,8 @@ const styles: Record<string, React.CSSProperties> = {
   terminalHeader: { backgroundColor: '#1E293B', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: '#94A3B8' },
   checkboxLabel: { marginRight: '16px', cursor: 'pointer' },
   btnClear: { backgroundColor: '#334155', color: '#FFF', border: 'none', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' },
-  terminalBody: { height: '380px', overflowY: 'auto', padding: '16px', fontSize: '13px', lineHeight: '1.6' },
-  emptyState: { color: '#64748B', textAlign: 'center', marginTop: '140px' },
+  terminalBody: { height: '340px', overflowY: 'auto', padding: '16px', fontSize: '13px', lineHeight: '1.6' },
+  emptyState: { color: '#64748B', textAlign: 'center', marginTop: '120px' },
   logRow: { marginBottom: '4px', display: 'flex', gap: '10px' },
   logTime: { color: '#64748B' },
   logSource: { fontWeight: 'bold', width: '70px' },

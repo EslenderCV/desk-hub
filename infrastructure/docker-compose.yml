@@ -12,12 +12,11 @@ services:
     restart: unless-stopped
   
   jarvis_ai:
-    build: ../jarvis  # Path to your JARVIS GitHub repository folder
+    build: ../jarvis
     container_name: jarvis_ai
     restart: always
     environment:
       - MQTT_BROKER_URL=mqtt://mqtt_broker:1883
-      # Add any API keys JARVIS needs (e.g., OPENAI_API_KEY, GEMINI_API_KEY, etc.)
     depends_on:
       - mqtt_broker
     networks:

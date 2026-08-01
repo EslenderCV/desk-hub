@@ -24,7 +24,9 @@ jobs:
       - name: 📥 Checkout Repository Code
         uses: actions/checkout@v4
         with:
+          token: ${{ secrets.SUBMODULE_TOKEN }}
           submodules: recursive # Automatically clones nested repos (e.g., jarvis)
+          clean: true
 
       - name: 🛠️ Validate Docker Compose Config
         run: |

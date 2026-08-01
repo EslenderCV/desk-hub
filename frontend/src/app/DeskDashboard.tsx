@@ -41,7 +41,7 @@ export const DeskDashboard: React.FC<{ wsUrl?: string }> = ({ wsUrl }) => {
       
       // Dynamic WS host detection to prevent cross-origin/IP connection issues
       const targetHost = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-      const targetWsUrl = wsUrl || `ws://${targetHost}:8080`;
+      const targetWsUrl = wsUrl || `ws://${targetHost}:8081`;
 
       const ws = new WebSocket(targetWsUrl);
       socketRef.current = ws;

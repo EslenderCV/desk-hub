@@ -7,7 +7,7 @@ import * as fs from 'fs';
 dotenv.config();
 
 const WS_PORT = parseInt(process.env.WS_PORT || '8080', 10);
-const MQTT_BROKER_URL = process.env.MQTT_BROKER_URL || 'mqtt://localhost:1883';
+const MQTT_BROKER_URL = process.env.MQTT_BROKER_URL || 'mqtt://mqtt_broker:1883';
 
 const mqttClient = mqtt.connect(MQTT_BROKER_URL);
 

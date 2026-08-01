@@ -4,16 +4,52 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+# Explicitly scope minimal GITHUB_TOKEN permissions (Least Privilege)
+permissions:
+  contents: read
+
+# Prevent race conditions by cancelling in-flight deployments on duplicate pushes
+concurrency:
+  group: deployment-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   deploy:
-    runs-on: [self-hosted, linux, arm64]
+    name: Build & Deploy Stack
+    runs-on: [self-hosted, linux, arm64] # Targets your Raspberry Pi runner
 
     steps:
-      - name: Checkout repository code
+      - name: 📥 Checkout Repository Code
         uses: actions/checkout@v4
+        with:
+          submodules: recursive # Automatically clones nested repos (e.g., jarvis)
+          clean: true
 
-      - name: Rebuild and deploy Docker stack
+      - name: 🛠️ Validate Docker Compose Config
         run: |
           cd infrastructure
-          docker compose up -d --build
+          docker compose config --quiet
+        shell: bash
+
+      - name: 🚀 Rebuild & Deploy Containers
+        run: |
+          cd infrastructure
+          docker compose up -d --build --remove-orphans
+        shell: bash
+
+      - name: 🧹 Prune Unused Docker Images
+        if: always() # Runs even if deployment fails to prevent Pi storage overflow
+        run: |
+          docker image prune -f
+        shell: bash
+
+      - name: 📝 Generate Deployment Summary
+        if: always()
+        run: |
+          echo "### 🚀 Deployment Report" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered By:** @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+        shell: bash

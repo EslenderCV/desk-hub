@@ -9,14 +9,22 @@ dotenv.config();
 const WS_PORT = parseInt(process.env.WS_PORT || '8080', 10);
 const MQTT_BROKER_URL = process.env.MQTT_BROKER_URL || 'mqtt://mqtt_broker:1883';
 
-const mqttClient = mqtt.connect(MQTT_BROKER_URL);
+console.log(`Connecting to MQTT broker at: ${MQTT_BROKER_URL}`);
+const mqttClient = mqtt.connect(MQTT_BROKER_URL, {
+    reconnectPeriod: 3000,
+});
 
 mqttClient.on('connect', () => {
+    broadcastLog('SYSTEM', `MQTT connected & subscribed to home/desk/+`);
     mqttClient.subscribe('home/desk/+', {}, (err) => {
-        if (!err) {
-            broadcastLog('SYSTEM', `MQTT connected & subscribed to home/desk/+`);
+        if (err) {
+            broadcastLog('SYSTEM', `MQTT Subscription error: ${err.message}`);
         }
     });
+});
+
+mqttClient.on('error', (err) => {
+    broadcastLog('SYSTEM', `MQTT Client Error: ${err.message}`);
 });
 
 mqttClient.on('message', (topic: string, message: Buffer) => {

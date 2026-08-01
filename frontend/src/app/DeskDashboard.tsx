@@ -19,9 +19,7 @@ interface TelemetryData {
   uptimeSec: number;
 }
 
-export const DeskDashboard: React.FC<{ wsUrl?: string }> = ({ 
-  wsUrl = 'ws://eslender-hub.local:8081' 
-}) => {
+export const DeskDashboard: React.FC<{ wsUrl?: string }> = ({ wsUrl }) => {
   const [connectionStatus, setConnectionStatus] = useState<'CONNECTING' | 'ONLINE' | 'OFFLINE'>('CONNECTING');
   const [deskState, setDeskState] = useState<'occupied' | 'vacant' | 'unknown'>('unknown');
   const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -40,7 +38,12 @@ export const DeskDashboard: React.FC<{ wsUrl?: string }> = ({
   useEffect(() => {
     const connect = () => {
       setConnectionStatus('CONNECTING');
-      const ws = new WebSocket(wsUrl);
+      
+      // Dynamic WS host detection to prevent cross-origin/IP connection issues
+      const targetHost = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+      const targetWsUrl = wsUrl || `ws://${targetHost}:8080`;
+
+      const ws = new WebSocket(targetWsUrl);
       socketRef.current = ws;
 
       ws.onopen = () => setConnectionStatus('ONLINE');

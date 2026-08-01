@@ -10,9 +10,13 @@ services:
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
     restart: unless-stopped
+    networks:
+      - desk_network
   
   jarvis_ai:
-    build: ../jarvis
+    build:
+      context: ../jarvis
+      dockerfile: Dockerfile
     container_name: jarvis_ai
     restart: always
     environment:
@@ -26,6 +30,7 @@ services:
     build:
       context: ../backend
       dockerfile: Dockerfile
+    container_name: hub_api
     ports:
       - "8081:8080"
     environment:
@@ -33,6 +38,11 @@ services:
       - MQTT_BROKER_URL=mqtt://mqtt_broker:1883
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - mqtt_broker
+    networks:
+      - desk_network
+    restart: unless-stopped
     
   portfolio_app:
     build:
@@ -40,6 +50,8 @@ services:
       dockerfile: Dockerfile
     container_name: portfolio_app
     restart: unless-stopped
+    networks:
+      - desk_network
 
   # Phase 2: Central Event Stream Telemetry (MQTT)
   mqtt_broker:
@@ -51,6 +63,8 @@ services:
     volumes:
       - ./mosquitto/config:/mosquitto/config
     restart: unless-stopped
+    networks:
+      - desk_network
   
   pihole:
     container_name: pihole
@@ -58,7 +72,7 @@ services:
     ports:
       - "53:53/tcp"
       - "53:53/udp"
-      - "8080:80/tcp"
+      - "8082:80/tcp" # Changed from 8080 to 8082 to avoid collision with hub_api
     environment:
       TZ: 'America/Santo_Domingo'
       WEBPASSWORD: 'Eslender45'
@@ -67,3 +81,10 @@ services:
       - ./etc-pihole:/etc/pihole
       - ./etc-dnsmasq.d:/etc/dnsmasq.d
     restart: unless-stopped
+    networks:
+      - desk_network
+
+# Top-level network declaration
+networks:
+  desk_network:
+    driver: bridge

@@ -21,6 +21,10 @@ services:
     restart: always
     environment:
       - MQTT_BROKER_URL=mqtt://mqtt_broker:1883
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+      - MAPS_API_KEY=${MAPS_API_KEY}
     depends_on:
       - mqtt_broker
     networks:

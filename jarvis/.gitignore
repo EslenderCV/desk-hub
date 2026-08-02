@@ -1,0 +1,15 @@
+# Ignore the virtual environment
+.venv/
+venv/
+ENV/
+
+# Ignore Python bytecode cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Optional: Ignore local test media or dynamic data logs from image_a2b77c.png
+test_frame.jpg
+cache_map.png
+# memory_ledger.json  <-- Uncomment this line if this JSON changes constantly or contains private logs

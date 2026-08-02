@@ -35,9 +35,14 @@ jobs:
         shell: bash
 
       - name: 🚀 Rebuild & Deploy Containers
+        env:
+            GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+            GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+            ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+            MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}  
         run: |
-          cd infrastructure
-          docker compose up -d --build
+            cd infrastructure
+            docker compose up -d --build
         shell: bash
 
       - name: 🧹 Prune Unused Docker Images

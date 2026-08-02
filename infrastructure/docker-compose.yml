@@ -16,6 +16,8 @@ services:
       context: ../jarvis
       dockerfile: Dockerfile
     container_name: jarvis_ai
+    stdin_open: true
+    tty: true
     restart: always
     environment:
       - MQTT_BROKER_URL=mqtt://mqtt_broker:1883

@@ -29,26 +29,15 @@ mqttClient.on('error', (err) => {
 
 mqttClient.on('message', (topic: string, message: Buffer) => {
     const rawMsg = message.toString();
-    broadcastLog('MQTT', `[${topic}]: ${rawMsg}`);
 
     try {
-        const payload = JSON.parse(rawMsg);
-
-        // Forward structured desk hardware event to all WebSocket clients
-        const wsPayload = JSON.stringify({
-            type: 'DESK_EVENT',
-            timestamp: new Date().toISOString(),
-            topic: topic,
-            data: payload
-        });
-
-        wss.clients.forEach((client) => {
-            if (client.readyState === WebSocket.OPEN) {
-                client.send(wsPayload);
-            }
-        });
+        const parsedPayload = JSON.parse(rawMsg);
+        
+        // Pass parsedPayload as the 3rd parameter so data.payload exists on the frontend!
+        broadcastLog('MQTT', `[${topic}]: ${rawMsg}`, parsedPayload);
     } catch {
-        // Raw string message fallback
+        // Plain string fallback
+        broadcastLog('MQTT', `[${topic}]: ${rawMsg}`);
     }
 });
 

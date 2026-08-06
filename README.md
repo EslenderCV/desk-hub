@@ -50,12 +50,15 @@ An end-to-end, real-time IoT telemetry system and operations dashboard powered b
 ### 2. Infrastructure Setup (Docker)
 
 Clone the repository and spin up the Mosquitto broker and `hub_api` container:
-
+```bash
 git clone https://github.com/EslenderCV/desk-hub.git
 cd desk-hub
 docker compose up -d --build
+```
 
 Ensure `mosquitto/config/mosquitto.conf` contains:
+
+
 listener 1883 0.0.0.0
 allow_anonymous true
 
@@ -66,22 +69,28 @@ allow_anonymous true
 1. Open the `desk_hub_esp32` directory in VS Code with PlatformIO.
 2. Update Wi-Fi and MQTT configurations in `src/main.cpp`:
 
+```cpp
 const char* WIFI_SSID     = "YOUR_2.4GHZ_WIFI";
 const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
-const char* MQTT_SERVER   = "192.168.1.38";
+const char* MQTT_SERVER   = "192.168.x.x";
 const int   MQTT_PORT     = 1883;
-
+```
 3. Build and flash the firmware via PlatformIO CLI:
+```bash
 pio run --target upload
 pio device monitor -b 115200
-
+```
 ---
 
 ### 4. Running the Dashboard
 
+```bash
+
 cd dashboard
 npm install
 npm run dev
+
+```
 
 Open `http://localhost:3000` (or `https://eslender.dev/dashboard`) to view the live core operations feed.
 

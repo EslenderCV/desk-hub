@@ -134,9 +134,9 @@
   # Allowed values are:
   #     Array of custom DNS records each one in HOSTS form: "IP HOSTNAME [HOSTNAME ...]"
   hosts = [
-    "192.168.1.38 eslender.dev",
-    "192.168.1.38 www.eslender.dev",
-    "192.168.1.38 hub.eslender.dev"
+    "192.168.1.11 eslender.dev",
+    "192.168.1.11 www.eslender.dev",
+    "192.168.1.11 hub.eslender.dev"
   ] ### CHANGED, default = []
 
   # If set, queries for plain names, without dots or domain parts, are never forwarded to

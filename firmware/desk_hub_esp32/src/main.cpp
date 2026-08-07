@@ -8,7 +8,7 @@ const char* WIFI_SSID     = "MONARCA";
 const char* WIFI_PASSWORD = "REYNA1616"; // Update password if needed
 
 // Local Pi IP Address
-const char* MQTT_SERVER   = "192.168.1.38";
+const char* MQTT_SERVER   = "192.168.1.11";
 const int   MQTT_PORT     = 1883;
 
 WiFiClient espClient;

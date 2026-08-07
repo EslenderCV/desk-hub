@@ -134,7 +134,7 @@
   # Allowed values are:
   #     Array of custom DNS records each one in HOSTS form: "IP HOSTNAME [HOSTNAME ...]"
   hosts = [
-    "192.168.1.38 eslender.dev",
+    "192.168.1.11 eslender.dev",
     "192.168.1.1 api.eslender.dev"
   ] ### CHANGED, default = []
 

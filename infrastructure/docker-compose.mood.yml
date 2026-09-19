@@ -157,7 +157,7 @@ services:
     restart: unless-stopped
     command: tunnel run
     volumes:
-      - ./cloudflared:/etc/cloudflared:ro
+      - ${CLOUDFLARED_DIR:-/home/eslender/.cloudflared}:/etc/cloudflared:ro
     networks:
       - desk_network
     depends_on:

@@ -29,13 +29,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
-    name: Build & Deploy Stack
-    runs-on: [self-hosted, linux]
-
-    env:
-      # Default to MOOD server compose; Pi workflow can override
-      COMPOSE_FILE: docker-compose.mood.yml
+  # ============================================================
+  # MOOD SERVER DEPLOYMENT (Default target)
+  # Runs on MOOD server's dedicated x64 self-hosted runner
+  # ============================================================
+  deploy-mood:
+    name: Build & Deploy to MOOD Server
+    if: ${{ github.event.inputs.target != 'pi' }}
+    runs-on: [self-hosted, linux, mood]
 
     steps:
       - name: 📥 Checkout Repository Code
@@ -45,26 +46,13 @@ jobs:
           submodules: recursive
           clean: true
 
-      - name: 🔍 Detect Deployment Target
-        id: target
-        run: |
-          TARGET="${{ github.event.inputs.target || 'mood' }}"
-          echo "target=$TARGET" >> $GITHUB_OUTPUT
-          if [ "$TARGET" = "pi" ]; then
-            echo "compose_file=docker-compose.yml" >> $GITHUB_OUTPUT
-          else
-            echo "compose_file=docker-compose.mood.yml" >> $GITHUB_OUTPUT
-          fi
-        shell: bash
-
       - name: 🛠️ Validate Docker Compose Config
         run: |
           cd infrastructure
-          docker compose -f ${{ steps.target.outputs.compose_file }} config --quiet
+          docker compose -f docker-compose.mood.yml config --quiet
         shell: bash
 
       - name: 🌐 Ensure Appwrite Network Exists
-        if: steps.target.outputs.target == 'mood'
         run: |
           docker network inspect appwrite >/dev/null 2>&1 || {
             echo "⚠️  Appwrite network not found — creating bridge placeholder"
@@ -80,16 +68,15 @@ jobs:
           MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
         run: |
           cd infrastructure
-          docker compose -f ${{ steps.target.outputs.compose_file }} \
+          docker compose -f docker-compose.mood.yml \
             up -d --build --remove-orphans
         shell: bash
 
       - name: ✅ Verify Container Health
-        if: steps.target.outputs.target == 'mood'
         run: |
           echo "### 🏥 Container Health Status" >> $GITHUB_STEP_SUMMARY
           sleep 15
-          docker compose -f infrastructure/${{ steps.target.outputs.compose_file }} ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}" | tee -a $GITHUB_STEP_SUMMARY
+          docker compose -f infrastructure/docker-compose.mood.yml ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}" | tee -a $GITHUB_STEP_SUMMARY
         shell: bash
 
       - name: 🧹 Prune Unused Docker Images
@@ -102,8 +89,57 @@ jobs:
         if: always()
         run: |
           echo "### 🚀 Deployment Report" >> $GITHUB_STEP_SUMMARY
-          echo "- **Target:** ${{ steps.target.outputs.target }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Compose:** \`${{ steps.target.outputs.compose_file }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Target:** MOOD Server" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered By:** @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+        shell: bash
+
+  # ============================================================
+  # RASPBERRY PI DEPLOYMENT (Manual fallback)
+  # Runs on Raspberry Pi ARM64 self-hosted runner
+  # ============================================================
+  deploy-pi:
+    name: Build & Deploy to Raspberry Pi
+    if: ${{ github.event.inputs.target == 'pi' }}
+    runs-on: [self-hosted, linux, ARM64]
+
+    steps:
+      - name: 📥 Checkout Repository Code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.SUBMODULE_TOKEN }}
+          submodules: recursive
+          clean: true
+
+      - name: 🛠️ Validate Docker Compose Config
+        run: |
+          cd infrastructure
+          docker compose -f docker-compose.yml config --quiet
+        shell: bash
+
+      - name: 🚀 Rebuild & Deploy Containers
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
+        run: |
+          cd infrastructure
+          docker compose -f docker-compose.yml up -d --build
+        shell: bash
+
+      - name: 🧹 Prune Unused Docker Images
+        if: always()
+        run: |
+          docker image prune -f
+        shell: bash
+
+      - name: 📝 Generate Deployment Summary
+        if: always()
+        run: |
+          echo "### 🚀 Deployment Report" >> $GITHUB_STEP_SUMMARY
+          echo "- **Target:** Raspberry Pi" >> $GITHUB_STEP_SUMMARY
           echo "- **Status:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Triggered By:** @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY

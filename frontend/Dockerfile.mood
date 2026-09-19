@@ -1,13 +1,23 @@
 # =============================================
 # MOOD SERVER FRONTEND BUILD
-# Uses Next.js static export (HTML/CSS/JS)
-# Copies pre-compiled static assets to /output for nginx
+# Multi-stage build for Next.js static export
 # =============================================
 
+# --- Build Stage ---
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+RUN npm run build
+
+# --- Output Stage ---
 FROM alpine:latest AS output
 WORKDIR /output
 
-# Copy the static export directory
-COPY out/ .
+# Copy compiled static files from builder stage
+COPY --from=builder /app/out ./
 
 CMD ["sh", "-c", "echo '[portfolio_app] Static assets ready in /output' && ls -la /output/"]

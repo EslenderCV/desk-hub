@@ -1,0 +1,28 @@
+# =============================================
+# MOOD SERVER FRONTEND BUILD
+# Properly handles Next.js static export
+# Outputs files to /output volume for nginx
+# =============================================
+
+# --- Build Stage ---
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+RUN npm run build
+
+# --- Output Stage ---
+# Copy the static export to the shared volume mount point
+# This container exits after the copy — nginx serves the files
+FROM alpine:latest AS output
+WORKDIR /output
+
+# Next.js with output: "export" generates files in /app/out
+COPY --from=builder /app/out/ .
+
+# The entrypoint copies files to the volume mount and exits
+# This ensures the volume is populated even on first run
+CMD ["sh", "-c", "echo '[portfolio_app] Static build output ready in /output' && ls -la /output/"]

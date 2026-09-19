@@ -119,10 +119,10 @@ class JarvisBackendEngine:
         """Arranca la infraestructura del servidor de datos en el puerto 8000."""
         print("\n" + "="*60)
         print("[JARVIS CORE OS]: INITIALIZING WEBSOCKET FLOW")
-        print(" -> Canal WebSockets Nativo Activo: ws://localhost:8000")
+        print(" -> Canal WebSockets Nativo Activo: ws://0.0.0.0:8000")
         print("="*60 + "\n")
         
-        async with websockets.serve(self.register_client, "localhost", 8000):
+        async with websockets.serve(self.register_client, "0.0.0.0", 8000):
             await self.telemetry_broadcast_loop()
 
     # ================================================================

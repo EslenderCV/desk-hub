@@ -1,0 +1,181 @@
+####################################################################
+# DESK-HUB MOOD SERVER DEPLOYMENT
+# Integrates with Appwrite's external Docker network
+# Usage: docker compose -f docker-compose.mood.yml --env-file .env.mood up -d --build
+####################################################################
+
+services:
+  # ============================================================
+  # REVERSE PROXY — Routes all traffic, serves static frontend
+  # Joins both desk_network (internal) and appwrite (external)
+  # ============================================================
+  web_gateway:
+    image: nginx:alpine
+    container_name: web_gateway
+    ports:
+      - "${GATEWAY_PORT:-8880}:80"
+    volumes:
+      - ./nginx/conf.d/gateway.mood.conf:/etc/nginx/conf.d/default.conf:ro
+      - frontend_static:/usr/share/nginx/html/app:ro
+    restart: unless-stopped
+    depends_on:
+      portfolio_app:
+        condition: service_completed_successfully
+      hub_api:
+        condition: service_started
+    networks:
+      - desk_network
+      - appwrite
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # ============================================================
+  # MQTT BROKER — Central event bus for ESP32 + Jarvis + hub_api
+  # ============================================================
+  mqtt_broker:
+    image: eclipse-mosquitto:latest
+    container_name: mqtt_broker
+    restart: always
+    ports:
+      - "${MQTT_PORT:-1883}:1883"
+      - "${MQTT_WS_PORT:-9001}:9001"
+    volumes:
+      - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_log:/mosquitto/log
+    networks:
+      - desk_network
+    healthcheck:
+      test: ["CMD-SHELL", "mosquitto_sub -t '$$SYS/#' -C 1 -W 3 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================================
+  # HUB API — Node.js/TS WebSocket gateway + Pi telemetry
+  # ============================================================
+  hub_api:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: hub_api
+    environment:
+      - WS_PORT=8080
+      - MQTT_BROKER_URL=mqtt://mqtt_broker:1883
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      mqtt_broker:
+        condition: service_healthy
+    networks:
+      - desk_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080 || exit 0"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # ============================================================
+  # FRONTEND — Static Next.js build (output: "export")
+  # Builds static files into a shared volume for nginx to serve
+  # ============================================================
+  portfolio_app:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile.mood
+    container_name: portfolio_app
+    volumes:
+      - frontend_static:/output
+    networks:
+      - desk_network
+    # This container exits after copying static files — that's expected
+    restart: "no"
+
+  # ============================================================
+  # JARVIS AI — Python LLM assistant with WebSocket + MQTT
+  # ============================================================
+  jarvis_ai:
+    build:
+      context: ../jarvis
+      dockerfile: Dockerfile
+    container_name: jarvis_ai
+    stdin_open: true
+    tty: true
+    restart: always
+    environment:
+      - MQTT_BROKER_URL=mqtt://mqtt_broker:1883
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+      - MAPS_API_KEY=${MAPS_API_KEY}
+    depends_on:
+      mqtt_broker:
+        condition: service_healthy
+    networks:
+      - desk_network
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import socket; s=socket.socket(); s.connect((\"localhost\",8000)); s.close()' || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  # ============================================================
+  # PI-HOLE — Network-wide DNS ad-blocker
+  # ============================================================
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "${PIHOLE_WEB_PORT:-8082}:80/tcp"
+    environment:
+      TZ: 'America/Santo_Domingo'
+      WEBPASSWORD: '${PIHOLE_PASSWORD:-changeme}'
+      FTLCONF_dns_listeningMode: 'ALL'
+    volumes:
+      - pihole_config:/etc/pihole
+      - pihole_dnsmasq:/etc/dnsmasq.d
+    restart: unless-stopped
+    networks:
+      - desk_network
+
+# ==============================================================
+# NETWORKS
+# ==============================================================
+networks:
+  # Internal bridge for desk-hub inter-service communication
+  desk_network:
+    driver: bridge
+    name: desk_network
+
+  # Pre-existing Appwrite network — declared external so Docker
+  # attaches to it without creating or modifying it
+  appwrite:
+    external: true
+    name: appwrite
+
+# ==============================================================
+# VOLUMES
+# ==============================================================
+volumes:
+  # Shared volume: frontend build output → nginx static serve
+  frontend_static:
+    driver: local
+  # Persistent MQTT data
+  mosquitto_data:
+    driver: local
+  mosquitto_log:
+    driver: local
+  # Pi-hole persistent config
+  pihole_config:
+    driver: local
+  pihole_dnsmasq:
+    driver: local

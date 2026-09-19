@@ -1,0 +1,26 @@
+tunnel: 7a22a2c9-9669-4415-ac72-23ef10143968
+credentials-file: /etc/cloudflared/7a22a2c9-9669-4415-ac72-23ef10143968.json
+
+ingress:
+  # Main Landing / Nginx Gateway
+  - hostname: eslender.dev
+    service: http://web_gateway:80
+
+  # Portfolio Frontend Subdomain
+  - hostname: portfolio.eslender.dev
+    service: http://web_gateway:80
+
+  # Hub API / WebSockets
+  - hostname: hub.eslender.dev
+    service: http://hub_api:8080
+
+  # JARVIS AI Backend
+  - hostname: jarvis.eslender.dev
+    service: http://jarvis_ai:8000
+
+  # Pi-hole Admin Interface
+  - hostname: pihole.eslender.dev
+    service: http://pihole:80
+
+  # Mandatory Catch-All Fallback Rule
+  - service: http_status:404

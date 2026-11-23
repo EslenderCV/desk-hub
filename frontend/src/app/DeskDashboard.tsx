@@ -43,9 +43,7 @@ export const DeskDashboard: React.FC<{ wsUrl?: string }> = ({ wsUrl }) => {
       const protocol = isHttps ? 'wss:' : 'ws:';
       const targetHost = typeof window !== 'undefined' ? window.location.host : 'localhost:8081';
 
-      const defaultWsUrl = isHttps 
-        ? `${protocol}//${targetHost}/ws` 
-        : `${protocol}//${targetHost}`;
+      const defaultWsUrl = `${protocol}//${targetHost}/ws`;
 
       const targetWsUrl = wsUrl || defaultWsUrl;
 

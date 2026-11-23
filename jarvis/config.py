@@ -21,6 +21,6 @@ class Config:
     @classmethod
     def validate(cls):
         if not cls.GROQ_API_KEY:
-            raise ValueError("FATAL: System Environment Variable 'GROQ_API_KEY' is missing.")
+            print("[CONFIG WARNING] 'GROQ_API_KEY' is not set. Inference features will be in standby.")
         if not cls.GEMINI_API_KEY:
-            raise ValueError("FATAL: System Environment Variable 'GEMINI_API_KEY' is missing.")
+            print("[CONFIG WARNING] 'GEMINI_API_KEY' is not set. Vision features will be in standby.")

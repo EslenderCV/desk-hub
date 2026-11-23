@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>yourGarage — Smart Vehicle Maintenance & ESP32 OBD-II Tracker</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        garageBg: '#171A20',
+                        garageCard: '#21252E',
+                        garageBorder: '#2B303A',
+                        garageInput: '#181B22',
+                        garageAmber: '#F59E0B',
+                        garageAmberBg: '#302516',
+                        garageAmberBorder: '#493A21',
+                        garageTextPrimary: '#F3F4F6',
+                        garageTextSecondary: '#969DAA'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #171A20;
+            color: #F3F4F6;
+            font-family: 'Inter', sans-serif;
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+        .animate-glow {
+            animation: pulse-glow 4s ease-in-out infinite;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #171A20;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2B303A;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #F59E0B;
+        }
+    </style>
+</head>
+<body class="bg-garageBg text-garageTextPrimary antialiased selection:bg-garageAmber selection:text-garageBg overflow-x-hidden">
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-50 bg-garageBg/90 backdrop-blur-md border-b border-garageBorder">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <a href="#" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 rounded-xl bg-garageCard border border-garageBorder flex items-center justify-center text-garageAmber group-hover:border-garageAmber transition-colors shadow-lg">
+                    <i class="fa-solid fa-car-rear text-lg"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-xl font-bold tracking-tight text-garageTextPrimary flex items-center gap-1.5">
+                        yourGarage <span class="w-2 h-2 rounded-full bg-garageAmber animate-ping"></span>
+                    </span>
+                    <span class="text-[10px] text-garageTextSecondary font-medium tracking-widest uppercase">ESP32 · BLE OBD-II</span>
+                </div>
+            </a>
+
+            <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-garageTextSecondary">
+                <a href="#features" class="hover:text-garageTextPrimary transition-colors">Features</a>
+                <a href="#hardware" class="hover:text-garageTextPrimary transition-colors">ESP32 Dongle</a>
+                <a href="#inspector" class="hover:text-garageTextPrimary transition-colors">Architecture</a>
+                <a href="https://github.com/EslenderCV/yourGarage" target="_blank" class="hover:text-garageTextPrimary transition-colors flex items-center gap-1.5">
+                    <i class="fa-brands fa-github text-base"></i> GitHub
+                </a>
+            </nav>
+
+            <div class="flex items-center gap-4">
+                <a href="https://github.com/EslenderCV/yourGarage" target="_blank" class="bg-garageAmber text-garageBg font-semibold px-5 py-2.5 rounded-xl hover:bg-amber-400 transition-all shadow-lg shadow-garageAmber/20 flex items-center gap-2 text-sm">
+                    <i class="fa-solid fa-download text-xs"></i> Get App
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative pt-16 pb-24 overflow-hidden">
+        <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-garageAmber/10 blur-[160px] rounded-full pointer-events-none animate-glow"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <div class="lg:col-span-6 space-y-6 text-center lg:text-left">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-garageAmberBg border border-garageAmberBorder text-garageAmber text-xs font-semibold tracking-wide shadow-sm">
+                        <i class="fa-solid fa-microchip text-[11px]"></i> ESP32-C3 / WROOM SMART DONGLE INTEGRATED
+                    </div>
+                    
+                    <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-garageTextPrimary leading-[1.1]">
+                        Your car's health, <br class="hidden sm:inline">
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-garageAmber via-amber-300 to-yellow-500">automatically tracked.</span>
+                    </h1>
+                    
+                    <p class="text-lg text-garageTextSecondary max-w-xl mx-auto lg:mx-0 font-normal leading-relaxed">
+                        Plug our smart OBD-II dongle into your car. When you turn the ignition, yourGarage automatically wakes up, syncs your cumulative mileage, tests battery voltage, and catches diagnostic trouble codes.
+                    </p>
+
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+                        <a href="https://github.com/EslenderCV/yourGarage" target="_blank" class="w-full sm:w-auto bg-garageAmber text-garageBg font-semibold px-8 py-4 rounded-xl hover:bg-amber-400 transition-all shadow-xl shadow-garageAmber/25 flex items-center justify-center gap-3 text-base">
+                            <i class="fa-brands fa-github text-lg"></i> Source Code
+                        </a>
+                        <a href="#hardware" class="w-full sm:w-auto bg-garageCard border border-garageBorder text-garageTextPrimary font-semibold px-8 py-4 rounded-xl hover:border-garageAmber/50 transition-all flex items-center justify-center gap-3 text-base">
+                            <i class="fa-solid fa-microchip text-lg"></i> Explore ESP32 Dongle
+                        </a>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-6 pt-8 border-t border-garageBorder max-w-md mx-auto lg:mx-0">
+                        <div>
+                            <div class="text-2xl font-bold font-mono text-garageTextPrimary">0.0mA</div>
+                            <div class="text-xs text-garageTextSecondary mt-0.5">Deep Sleep Draw</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold font-mono text-garageAmber">&lt; 1s</div>
+                            <div class="text-xs text-garageTextSecondary mt-0.5">Ignition Wake Time</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold font-mono text-garageTextPrimary">AES-128</div>
+                            <div class="text-xs text-garageTextSecondary mt-0.5">Secure BLE Link</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Hero Preview Dashboard Card -->
+                <div class="lg:col-span-6 relative">
+                    <div class="absolute -inset-2 bg-gradient-to-r from-garageAmber/30 to-blue-600/20 rounded-3xl blur-2xl opacity-60"></div>
+                    
+                    <div class="relative bg-garageCard border border-garageBorder rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl space-y-6">
+                        
+                        <!-- Widget Top Status Bar -->
+                        <div class="flex items-center justify-between pb-4 border-b border-garageBorder">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-garageInput border border-garageBorder flex items-center justify-center text-garageAmber shadow-inner">
+                                    <i class="fa-solid fa-car text-lg"></i>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-bold text-garageTextPrimary flex items-center gap-2">
+                                        <span>2021 VW Golf</span>
+                                        <span class="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-mono">⚡ 14.2V · Synced</span>
+                                    </div>
+                                    <div class="text-xs text-garageTextSecondary">Personal Vehicle · Odometer Active</div>
+                                </div>
+                            </div>
+                            <div class="w-8 h-8 rounded-full bg-garageInput border border-garageBorder flex items-center justify-center text-garageTextSecondary">
+                                <i class="fa-solid fa-ellipsis"></i>
+                            </div>
+                        </div>
+
+                        <!-- Next Service Countdown Card -->
+                        <div class="p-4 rounded-2xl bg-garageAmberBg border border-garageAmberBorder space-y-3">
+                            <div class="flex items-center justify-between text-xs font-semibold">
+                                <span class="text-garageAmber flex items-center gap-1.5">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> NEXT SERVICE DUE
+                                </span>
+                                <span class="text-amber-300 font-mono">1,750 km remaining</span>
+                            </div>
+                            <div>
+                                <div class="text-base font-bold text-garageTextPrimary">Tire rotation</div>
+                                <div class="text-xs text-garageTextSecondary mt-0.5">at 50,000 km</div>
+                            </div>
+                            <!-- Progress bar -->
+                            <div class="w-full bg-garageInput rounded-full h-2 overflow-hidden border border-garageBorder">
+                                <div class="bg-garageAmber h-full rounded-full" style="width: 55%"></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] text-garageTextSecondary">
+                                <span>55% of service interval</span>
+                                <span class="text-garageAmber font-semibold">View schedule →</span>
+                            </div>
+                        </div>
+
+                        <!-- Quick Summary Grid -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="p-4 rounded-2xl bg-garageInput border border-garageBorder space-y-1">
+                                <span class="text-[10px] uppercase tracking-wider text-garageTextSecondary font-semibold">OCTOBER SPEND</span>
+                                <div class="text-2xl font-extrabold font-mono text-garageTextPrimary">$89.00</div>
+                                <div class="text-[10px] text-garageTextSecondary pt-1">1 service this month</div>
+                            </div>
+                            <div class="p-4 rounded-2xl bg-garageInput border border-garageBorder space-y-1">
+                                <span class="text-[10px] uppercase tracking-wider text-garageTextSecondary font-semibold">ODOMETER</span>
+                                <div class="text-2xl font-extrabold font-mono text-garageAmber">48,250 <span class="text-xs text-garageTextSecondary font-normal">km</span></div>
+                                <div class="text-[10px] text-emerald-400 pt-1">BLE sync active</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Bento Grid Features Section -->
+    <section id="features" class="py-24 bg-garageBg border-t border-garageBorder relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto space-y-4 mb-16">
+                <h2 class="text-xs font-bold tracking-widest uppercase text-garageAmber">BUILT FOR CAR ENTHUSIASTS</h2>
+                <p class="text-3xl sm:text-4xl font-extrabold text-garageTextPrimary tracking-tight">Everything your garage needs, in your pocket.</p>
+                <p class="text-garageTextSecondary text-base">Designed with meticulous attention to detail, combining zero-input hardware sync with lightning-fast manual logging.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- Card 1 -->
+                <div class="bg-garageCard border border-garageBorder rounded-3xl p-8 flex flex-col justify-between hover:border-garageAmber/50 transition-all group">
+                    <div class="space-y-4">
+                        <div class="w-12 h-12 rounded-2xl bg-garageInput border border-garageBorder flex items-center justify-center text-garageAmber group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-bluetooth text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-garageTextPrimary">Zero-Input BLE Telemetry</h3>
+                        <p class="text-sm text-garageTextSecondary leading-relaxed">
+                            Connects to generic ELM327 OBD dongles (`FFF0`/`FFE0`) or our custom ESP32 GATT smart hardware to automatically sync odometer readings and battery voltage when you start the car.
+                        </p>
+                    </div>
+                    <div class="mt-8 p-4 rounded-2xl bg-garageInput border border-garageBorder font-mono text-xs text-garageTextSecondary space-y-2">
+                        <div class="flex items-center justify-between text-garageAmber">
+                            <span>&gt; ATZ</span>
+                            <span>[ELM327 v1.5]</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span>&gt; 01A6 (Odo)</span>
+                            <span class="text-garageTextPrimary font-bold">48,250 km</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-garageCard border border-garageBorder rounded-3xl p-8 flex flex-col justify-between hover:border-garageAmber/50 transition-all group">
+                    <div class="space-y-4">
+                        <div class="w-12 h-12 rounded-2xl bg-garageInput border border-garageBorder flex items-center justify-center text-garageAmber group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-receipt text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-garageTextPrimary">10-Second Quick-Log &amp; Receipts</h3>
+                        <p class="text-sm text-garageTextSecondary leading-relaxed">
+                            Snap a photo of your mechanic's receipt, extract totals instantly, and log expenses with category pills (Oil, Tires, Brakes, Coolant) backed by offline SQLite.
+                        </p>
+                    </div>
+                    <div class="mt-8 grid grid-cols-2 gap-3">
+                        <div class="p-3 rounded-xl bg-garageInput border border-garageAmber text-center">
+                            <i class="fa-solid fa-droplet text-garageAmber mb-1"></i>
+                            <div class="text-xs font-semibold text-garageTextPrimary">Oil Service</div>
+                        </div>
+                        <div class="p-3 rounded-xl bg-garageInput border border-garageBorder text-center">
+                            <i class="fa-solid fa-circle-dot text-garageTextSecondary mb-1"></i>
+                            <div class="text-xs font-semibold text-garageTextSecondary">Tire Rotation</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-garageCard border border-garageBorder rounded-3xl p-8 flex flex-col justify-between hover:border-garageAmber/50 transition-all group">
+                    <div class="space-y-4">
+                        <div class="w-12 h-12 rounded-2xl bg-garageInput border border-garageBorder flex items-center justify-center text-garageAmber group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-chart-pie text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-garageTextPrimary">Predictive Insights &amp; Cost Per KM</h3>
+                        <p class="text-sm text-garageTextSecondary leading-relaxed">
+                            Deep analytics tracking total spend, monthly spending trends, category percentages, and exact cost-per-kilometer driven across your entire garage.
+                        </p>
+                    </div>
+                    <div class="mt-8 p-4 rounded-2xl bg-garageInput border border-garageBorder flex items-center justify-between">
+                        <div>
+                            <div class="text-xs text-garageTextSecondary">COST PER KM</div>
+                            <div class="text-xl font-bold font-mono text-garageAmber">$0.04 <span class="text-xs text-garageTextSecondary font-normal">/km</span></div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs text-garageTextSecondary">TOTAL SPENT</div>
+                            <div class="text-xl font-bold font-mono text-garageTextPrimary">$164.00</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ESP32 Hardware Section -->
+    <section id="hardware" class="py-24 bg-garageCard border-t border-garageBorder relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <div class="lg:col-span-6 space-y-6">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-garageInput border border-garageBorder text-garageAmber text-xs font-semibold tracking-wide">
+                        <i class="fa-solid fa-microchip"></i> OPEN HARDWARE DESIGN
+                    </div>
+                    
+                    <h2 class="text-3xl sm:text-5xl font-extrabold text-garageTextPrimary tracking-tight leading-tight">
+                        Engineered for zero battery drain.
+                    </h2>
+                    
+                    <p class="text-base text-garageTextSecondary leading-relaxed">
+                        Traditional OBD dongles stay powered on and drain car batteries if left plugged in for days. Our custom ESP32 firmware monitors CAN bus voltage thresholds to enter true deep sleep when parked.
+                    </p>
+
+                    <div class="space-y-4 pt-2">
+                        <div class="flex items-start gap-4 p-4 rounded-2xl bg-garageInput border border-garageBorder">
+                            <div class="w-10 h-10 rounded-xl bg-garageCard border border-garageBorder flex items-center justify-center text-garageAmber shrink-0 mt-0.5">
+                                <i class="fa-solid fa-moon"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-garageTextPrimary">Deep Sleep &amp; Auto-Wake</h4>
+                                <p class="text-xs text-garageTextSecondary mt-1">Draws 0.0mA while parked, waking instantly when alternator charging voltage exceeds 13.2V.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4 p-4 rounded-2xl bg-garageInput border border-garageBorder">
+                            <div class="w-10 h-10 rounded-xl bg-garageCard border border-garageBorder flex items-center justify-center text-garageAmber shrink-0 mt-0.5">
+                                <i class="fa-solid fa-database"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-garageTextPrimary">Offline Trip Buffering</h4>
+                                <p class="text-xs text-garageTextSecondary mt-1">Stores cumulative mileage increments locally on flash memory if your phone isn't connected.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-6">
+                    <div class="bg-garageBg border border-garageBorder rounded-3xl p-6 shadow-2xl font-mono text-xs space-y-4">
+                        <div class="flex items-center justify-between pb-3 border-b border-garageBorder">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-red-500/80 inline-block"></span>
+                                <span class="w-3 h-3 rounded-full bg-yellow-500/80 inline-block"></span>
+                                <span class="w-3 h-3 rounded-full bg-green-500/80 inline-block"></span>
+                                <span class="text-xs text-garageTextSecondary ml-2">esp32_ble_obd.ino</span>
+                            </div>
+                            <span class="text-xs text-garageAmber">BLE GATT SERVER</span>
+                        </div>
+
+                        <div class="text-garageTextSecondary space-y-1 overflow-x-auto p-2">
+                            <p class="text-purple-400">#define <span class="text-garageTextPrimary">SERVICE_UUID</span> <span class="text-amber-300">"4FAFC201-1FB5-459E-8FCC-C5C9C331914B"</span></p>
+                            <p class="text-purple-400">#define <span class="text-garageTextPrimary">CHAR_UUID</span>    <span class="text-amber-300">"BEB5483E-36E1-4688-B7F5-EA07361B26A8"</span></p>
+                            <br>
+                            <p><span class="text-blue-400">void</span> <span class="text-yellow-300">setup</span>() &#123;</p>
+                            <p class="pl-4">Serial.<span class="text-green-400">begin</span>(115200);</p>
+                            <p class="pl-4">BLEDevice::<span class="text-green-400">init</span>("yourGarage-ESP32");</p>
+                            <p class="pl-4">BLEServer *pServer = BLEDevice::<span class="text-green-400">createServer</span>();</p>
+                            <p class="pl-4">BLEService *pService = pServer-&gt;<span class="text-green-400">createService</span>(SERVICE_UUID);</p>
+                            <p>&#125;</p>
+                            <br>
+                            <p><span class="text-blue-400">void</span> <span class="text-yellow-300">loop</span>() &#123;</p>
+                            <p class="pl-4">String payload = <span class="text-amber-300">"{\"odo\":48250,\"vbat\":14.2,\"dtcs\":[]}"</span>;</p>
+                            <p class="pl-4">pCharacteristic-&gt;<span class="text-green-400">setValue</span>(payload.<span class="text-green-400">c_str</span>());</p>
+                            <p class="pl-4">pCharacteristic-&gt;<span class="text-green-400">notify</span>();</p>
+                            <p class="pl-4"><span class="text-green-400">delay</span>(5000);</p>
+                            <p>&#125;</p>
+                        </div>
+
+                        <div class="p-3 rounded-xl bg-garageCard border border-garageBorder flex items-center justify-between text-xs">
+                            <span class="text-garageTextSecondary">Hardware Targets</span>
+                            <span class="font-bold text-garageTextPrimary">ESP32-C3 · ESP32-WROOM · MCP2515 CAN</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Hardware & CAN-Bus Telemetry Inspector Section -->
+    <section id="inspector" class="py-24 bg-garageBg border-t border-garageBorder relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto space-y-4 mb-16">
+                <h2 class="text-xs font-bold tracking-widest uppercase text-garageAmber">ARCHITECTURE &amp; PROTOCOL INSPECTOR</h2>
+                <p class="text-3xl sm:text-4xl font-extrabold text-garageTextPrimary tracking-tight">Real-Time CAN-Bus Decoding</p>
+                <p class="text-garageTextSecondary text-base">Inspect the exact AT commands, ELM327 PID polling frames, and BLE characteristic payloads exchanged between your vehicle and your phone.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                
+                <!-- Left Column: Protocol Architecture Details -->
+                <div class="lg:col-span-5 space-y-6">
+                    <div class="bg-garageCard border border-garageBorder rounded-3xl p-6 sm:p-8 space-y-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-garageInput border border-garageBorder flex items-center justify-center text-garageAmber">
+                                <i class="fa-solid fa-terminal"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-garageTextPrimary">ELM327 &amp; ESP32 Dual Stream</h3>
+                                <div class="text-xs text-garageTextSecondary">UART Baud: 38400 / 115200</div>
+                            </div>
+                        </div>
+
+                        <p class="text-xs text-garageTextSecondary leading-relaxed">
+                            The companion app handles both standard OBD-II hex protocols and optimized JSON GATT bursts. When connected to generic ELM327 adapters, it cycles through initialization commands and parses hex strings.
+                        </p>
+
+                        <div class="space-y-3 pt-2 font-mono text-xs">
+                            <div class="p-3 rounded-xl bg-garageInput border border-garageBorder flex items-center justify-between">
+                                <span class="text-garageTextPrimary">ATZ</span>
+                                <span class="text-garageAmber">Reset &amp; Init</span>
+                            </div>
+                            <div class="p-3 rounded-xl bg-garageInput border border-garageBorder flex items-center justify-between">
+                                <span class="text-garageTextPrimary">ATRV</span>
+                                <span class="text-amber-400">Battery Voltage</span>
+                            </div>
+                            <div class="p-3 rounded-xl bg-garageInput border border-garageBorder flex items-center justify-between">
+                                <span class="text-garageTextPrimary">01A6</span>
+                                <span class="text-emerald-400">Odometer PID</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Live Telemetry Inspector Terminal -->
+                <div class="lg:col-span-7">
+                    <div class="bg-garageCard border border-garageBorder rounded-3xl p-6 sm:p-8 shadow-2xl font-mono text-xs space-y-4">
+                        <div class="flex items-center justify-between pb-4 border-b border-garageBorder">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-red-500/80 inline-block"></span>
+                                <span class="w-3 h-3 rounded-full bg-yellow-500/80 inline-block"></span>
+                                <span class="w-3 h-3 rounded-full bg-green-500/80 inline-block"></span>
+                                <span class="text-xs text-garageTextSecondary ml-2">ble_obd_inspector.log</span>
+                            </div>
+                            <span class="px-2 py-0.5 rounded-full bg-garageInput border border-garageBorder text-emerald-400 text-[10px]">LIVE STREAM</span>
+                        </div>
+
+                        <div class="space-y-2.5 text-garageTextSecondary p-3 rounded-2xl bg-garageInput border border-garageBorder h-[320px] overflow-y-auto">
+                            <div class="flex items-start gap-2">
+                                <span class="text-garageAmber font-bold">&gt;</span>
+                                <span class="text-garageTextPrimary">ATZ</span>
+                            </div>
+                            <div class="flex items-start gap-2 pl-4">
+                                <span class="text-emerald-400">&lt;</span>
+                                <span>ELM327 v1.5</span>
+                            </div>
+                            <div class="flex items-start gap-2 pt-1">
+                                <span class="text-garageAmber font-bold">&gt;</span>
+                                <span class="text-garageTextPrimary">ATE0 (Echo Off)</span>
+                            </div>
+                            <div class="flex items-start gap-2 pl-4">
+                                <span class="text-emerald-400">&lt;</span>
+                                <span>OK</span>
+                            </div>
+                            <div class="flex items-start gap-2 pt-1">
+                                <span class="text-garageAmber font-bold">&gt;</span>
+                                <span class="text-garageTextPrimary">ATRV (Read Voltage)</span>
+                            </div>
+                            <div class="flex items-start gap-2 pl-4">
+                                <span class="text-emerald-400">&lt;</span>
+                                <span class="text-amber-300 font-bold">14.2V</span>
+                            </div>
+                            <div class="flex items-start gap-2 pt-1">
+                                <span class="text-garageAmber font-bold">&gt;</span>
+                                <span class="text-garageTextPrimary">01A6 (Odometer Request)</span>
+                            </div>
+                            <div class="flex items-start gap-2 pl-4">
+                                <span class="text-emerald-400">&lt;</span>
+                                <span class="text-emerald-400 font-bold">41 A6 00 BC 1A 22 (48,250 km)</span>
+                            </div>
+                            <div class="flex items-start gap-2 pt-1">
+                                <span class="text-garageAmber font-bold">&gt;</span>
+                                <span class="text-garageTextPrimary">03 (Read DTC Trouble Codes)</span>
+                            </div>
+                            <div class="flex items-start gap-2 pl-4">
+                                <span class="text-emerald-400">&lt;</span>
+                                <span class="text-garageTextSecondary">43 00 00 00 00 00 (No Faults Found)</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between text-[11px] text-garageTextSecondary pt-1">
+                            <span>Status: Connected via BLE GATT Characteristic</span>
+                            <span class="text-garageAmber">AES-128 Encrypted</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-garageBg border-t border-garageBorder py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6 text-sm text-garageTextSecondary">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-garageCard border border-garageBorder flex items-center justify-center text-garageAmber">
+                    <i class="fa-solid fa-car-rear text-sm"></i>
+                </div>
+                <span class="font-bold text-garageTextPrimary">yourGarage</span>
+                <span>© 2026 Eslender Cruz. All rights reserved.</span>
+            </div>
+            <div class="flex items-center gap-6">
+                <a href="https://github.com/EslenderCV/yourGarage" target="_blank" class="hover:text-garageTextPrimary transition-colors flex items-center gap-1.5">
+                    <i class="fa-brands fa-github text-base"></i> EslenderCV/yourGarage
+                </a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

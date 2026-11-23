@@ -27,7 +27,7 @@ class JarvisBackendEngine:
         }
 
         # Proveedores de servicios multimedia y persistencia de disco
-        self.audio_client = ElevenLabs(api_key=Config.ELEVENLABS_API_KEY)
+        self.audio_client = ElevenLabs(api_key=Config.ELEVENLABS_API_KEY) if Config.ELEVENLABS_API_KEY else None
         self.target_voice_id = "cjVigY5qzO86Huf0OWal"
         self.memory_file_path = "memory_ledger.json"
         self.cached_map_path = "cache_map.png"
@@ -258,7 +258,7 @@ class JarvisBackendEngine:
     # ================================================================
     def _trigger_voice_and_state(self, text):
         """Gestiona el disparo del audio y fuerza los cambios de estados síncronos en la UI."""
-        if self.credits_exhausted:
+        if not self.audio_client or self.credits_exhausted:
             self._execute_local_tts_fallback(text)
             return
 

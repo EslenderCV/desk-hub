@@ -9,8 +9,8 @@ import requests
 class APIClientFactory:
     def __init__(self):
         Config.validate()
-        self.groq = Groq(api_key=Config.GROQ_API_KEY)
-        self.gemini = genai.Client(api_key=Config.GEMINI_API_KEY)
+        self.groq = Groq(api_key=Config.GROQ_API_KEY) if Config.GROQ_API_KEY else None
+        self.gemini = genai.Client(api_key=Config.GEMINI_API_KEY) if Config.GEMINI_API_KEY else None
         self.maps_key = Config.MAPS_API_KEY
 
     def fetch_static_map(self, origin, destination, save_path="cache_map.png"):

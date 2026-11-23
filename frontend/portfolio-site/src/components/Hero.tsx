@@ -112,23 +112,10 @@ export function Hero({ copy }: HeroProps) {
         transition={{ duration: 0.75, ease: [0.19, 1, 0.22, 1] }}
         className="relative z-30 flex items-start justify-between pr-28"
       >
-        <div className="flex flex-col gap-[16px] sm:gap-[18px] items-start">
+        <div className="flex flex-col items-start">
           <p className="font-mono text-[11px] sm:text-[12px] tracking-[0.36px] text-[#F4F4F6] uppercase">
             {copy.roleLocation}
           </p>
-
-          <div className="inline-flex items-center gap-[9px] rounded-[30px] border border-[#222228] bg-[#050507]/60 backdrop-blur-sm px-[12px] py-[7px]">
-            <img
-              src="/assets/figma/available-status.svg"
-              alt=""
-              width={6}
-              height={6}
-              className="shrink-0 w-[6px] h-[6px]"
-            />
-            <span className="font-mono text-[11px] sm:text-[12px] leading-none text-[#A3E635] uppercase">
-              {copy.availability}
-            </span>
-          </div>
         </div>
       </motion.div>
 

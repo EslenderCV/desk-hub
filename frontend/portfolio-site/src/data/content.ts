@@ -46,7 +46,6 @@ export interface SiteContent {
   };
   hero: {
     roleLocation: string;
-    availability: string;
     name: string;
     portraitAlt: string;
     sigLeftLine1: string;
@@ -112,7 +111,6 @@ export const content: Record<Language, SiteContent> = {
     },
     hero: {
       roleLocation: 'FULL STACK DEVELOPER · SANTIAGO, DR',
-      availability: 'AVAILABLE FOR WORK',
       name: 'ESLENDER',
       portraitAlt: 'Monochrome close-up portrait of Eslender Cruz',
       sigLeftLine1: 'ROBUST SYSTEMS.',
@@ -292,7 +290,6 @@ export const content: Record<Language, SiteContent> = {
     },
     hero: {
       roleLocation: 'DESARROLLADOR FULL STACK · SANTIAGO, RD',
-      availability: 'DISPONIBLE PARA TRABAJAR',
       name: 'ESLENDER',
       portraitAlt: 'Retrato monocromático de alto contraste de Eslender Cruz',
       sigLeftLine1: 'SISTEMAS ROBUSTOS.',

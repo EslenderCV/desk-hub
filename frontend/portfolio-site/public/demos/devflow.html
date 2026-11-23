@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>devflow. — Developer Workspace</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #101014; color: #f4f4f6; font-family: 'Space Grotesk', sans-serif; min-height: 100dvh; display: flex; }
+    aside { width: 220px; background: #16161b; border-right: 1px solid #222228; padding: 28px 24px; display: flex; flex-direction: column; gap: 28px; }
+    .logo { font-size: 26px; font-weight: 700; letter-spacing: -0.05em; }
+    nav { display: flex; flex-direction: column; gap: 18px; font-size: 14px; color: #92929b; }
+    nav span.active { color: #f4f4f6; font-weight: 700; }
+    main { flex: 1; padding: 36px; display: flex; flex-direction: column; gap: 22px; }
+    .top { display: flex; justify-content: space-between; align-items: center; }
+    h1 { font-size: 30px; font-weight: 700; }
+    .btn { background: #a3e635; color: #141418; border: none; padding: 10px 16px; border-radius: 4px; font-weight: 700; font-size: 12px; cursor: pointer; }
+    .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    .col { display: flex; flex-direction: column; gap: 14px; }
+    .col-head { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #92929b; }
+    .card { background: #1c1c22; border: 1px solid #29292f; border-radius: 5px; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+    .tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #a3e635; }
+    @media (max-width: 720px) { aside { display: none; } main { padding: 20px; } }
+  </style>
+</head>
+<body>
+  <aside>
+    <div class="logo">devflow.</div>
+    <nav><span class="active">My workspace</span><span>Projects</span><span>My tasks</span><span>Activity</span><span>Settings</span></nav>
+  </aside>
+  <main>
+    <div class="top"><h1>Website launch</h1><button class="btn" type="button">New task</button></div>
+    <div class="cols">
+      <div class="col">
+        <div class="col-head"><span>TO DO</span><span style="color:#a3e635">02</span></div>
+        <div class="card"><span class="tag">DESIGN</span><strong>Review onboarding flow</strong><small style="color:#92929b">Design / Interface</small></div>
+        <div class="card"><span class="tag">BACKEND</span><strong>Define auth endpoints</strong><small style="color:#92929b">API / Security</small></div>
+      </div>
+      <div class="col">
+        <div class="col-head"><span>IN PROGRESS</span><span style="color:#a3e635">02</span></div>
+        <div class="card"><span class="tag">FRONTEND</span><strong>Build dashboard shell</strong><small style="color:#92929b">React / TypeScript</small></div>
+        <div class="card"><span class="tag">BACKEND</span><strong>Connect activity feed</strong><small style="color:#92929b">API / Integration</small></div>
+      </div>
+      <div class="col">
+        <div class="col-head"><span>DONE</span><span style="color:#a3e635">02</span></div>
+        <div class="card"><span class="tag">FOUNDATION</span><strong>Initialize workspace</strong><small style="color:#92929b">Infrastructure</small></div>
+        <div class="card"><span class="tag">DESIGN</span><strong>Define design tokens</strong><small style="color:#92929b">Design system</small></div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

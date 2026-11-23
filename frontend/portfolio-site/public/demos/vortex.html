@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VORTEX — Harmonic Step Sequencer</title>
+  <style>
+    :root {
+      --bg: #0a0b10;
+      --surface: #12141f;
+      --line: #23273a;
+      --text: #f4f4f6;
+      --muted: #8a90a8;
+      --accent: #3b82f6;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      min-height: 100dvh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 14px;
+    }
+    .title {
+      font-weight: 900;
+      font-size: 1.2rem;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .pill {
+      width: 10px;
+      height: 10px;
+      background: var(--accent);
+      display: inline-block;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+    button {
+      background: var(--accent);
+      color: #090a0f;
+      border: none;
+      padding: 9px 14px;
+      font-weight: 800;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    button.ghost {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+    .matrix-wrap {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .matrix {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 6px;
+    }
+    .cell {
+      aspect-ratio: 1.25 / 1;
+      background: #0d0f18;
+      border: 1px solid var(--line);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, transform 0.12s;
+    }
+    .cell.active {
+      background: var(--accent);
+      border-color: #93c5fd;
+    }
+    .cell.playhead {
+      outline: 2px solid #f4f4f6;
+      transform: scale(1.03);
+    }
+    canvas {
+      width: 100%;
+      height: 140px;
+      background: #08090e;
+      border: 1px solid var(--line);
+      display: block;
+    }
+    .footer-meta {
+      display: flex;
+      justify-content: space-between;
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title"><span class="pill"></span> VORTEX // HARMONIC MATRIX</div>
+    <div class="toolbar">
+      <button id="toggleBtn" type="button">Pause Engine</button>
+      <button id="randomBtn" type="button" class="ghost">Randomize</button>
+      <button id="clearBtn" type="button" class="ghost">Clear</button>
+    </div>
+  </header>
+
+  <section class="matrix-wrap">
+    <canvas id="waveCanvas"></canvas>
+    <div class="matrix" id="matrix"></div>
+    <div class="footer-meta">
+      <span>CLICK CELLS TO SCULPT HARMONIC PATTERN</span>
+      <span id="stepInfo">STEP 01 / 08</span>
+    </div>
+  </section>
+
+  <script>
+    const rows = 4;
+    const cols = 8;
+    const freqs = [523.25, 440, 349.23, 261.63];
+    const grid = [
+      [1,0,0,1,0,1,0,0],
+      [0,1,0,0,1,0,1,0],
+      [1,0,1,0,0,1,0,1],
+      [0,0,1,0,1,0,0,0]
+    ];
+
+    const matrixEl = document.getElementById('matrix');
+    const waveCanvas = document.getElementById('waveCanvas');
+    const ctx = waveCanvas.getContext('2d');
+    const stepInfo = document.getElementById('stepInfo');
+    const toggleBtn = document.getElementById('toggleBtn');
+
+    let running = true;
+    let currentStep = 0;
+    let pulseEnergy = 0.25;
+    let audioCtx = null;
+
+    function playTone(freq) {
+      try {
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.16);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.17);
+      } catch {}
+    }
+
+    function unlockAudio() {
+      if (!audioCtx && (window.AudioContext || window.webkitAudioContext)) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AC();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function renderGrid() {
+      matrixEl.innerHTML = '';
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'cell' + (grid[r][c] ? ' active' : '') + (c === currentStep ? ' playhead' : '');
+          btn.setAttribute('aria-label', `Row ${r + 1} Step ${c + 1}`);
+          btn.addEventListener('click', () => {
+            unlockAudio();
+            grid[r][c] = grid[r][c] ? 0 : 1;
+            pulseEnergy = 1;
+            renderGrid();
+          });
+          matrixEl.appendChild(btn);
+        }
+      }
+    }
+
+    toggleBtn.addEventListener('click', () => {
+      unlockAudio();
+      running = !running;
+      toggleBtn.textContent = running ? 'Pause Engine' : 'Run Engine';
+    });
+
+    document.getElementById('randomBtn').addEventListener('click', () => {
+      unlockAudio();
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          grid[r][c] = Math.random() > 0.62 ? 1 : 0;
+        }
+      }
+      renderGrid();
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      for (let r = 0; r < rows; r++) grid[r].fill(0);
+      renderGrid();
+    });
+
+    setInterval(() => {
+      if (!running) return;
+      currentStep = (currentStep + 1) % cols;
+      stepInfo.textContent = `STEP 0${currentStep + 1} / 08`;
+      let hits = 0;
+      for (let r = 0; r < rows; r++) {
+        if (grid[r][currentStep]) {
+          hits++;
+          playTone(freqs[r]);
+        }
+      }
+      if (hits > 0) pulseEnergy = Math.min(1.2, 0.35 + hits * 0.25);
+      renderGrid();
+    }, 240);
+
+    function resizeWave() {
+      const rect = waveCanvas.getBoundingClientRect();
+      waveCanvas.width = rect.width * devicePixelRatio;
+      waveCanvas.height = rect.height * devicePixelRatio;
+      ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+    }
+    window.addEventListener('resize', resizeWave);
+    resizeWave();
+
+    let phase = 0;
+    function drawWave() {
+      const w = waveCanvas.clientWidth;
+      const h = waveCanvas.clientHeight;
+      ctx.clearRect(0, 0, w, h);
+
+      phase += 0.05;
+      pulseEnergy *= 0.96;
+
+      ctx.strokeStyle = '#3b82f6';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      for (let x = 0; x <= w; x += 4) {
+        const norm = x / w;
+        const env = Math.sin(norm * Math.PI);
+        const y = h / 2 + Math.sin(norm * 14 + phase) * Math.cos(norm * 5 - phase * 0.7) * (h * 0.38 * Math.max(0.18, pulseEnergy)) * env;
+        if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      requestAnimationFrame(drawWave);
+    }
+
+    renderGrid();
+    requestAnimationFrame(drawWave);
+  </script>
+</body>
+</html>

@@ -1,4 +1,13 @@
 services:
+  portfolio_site:
+    build:
+      context: ../frontend/portfolio-site
+      dockerfile: Dockerfile
+    container_name: portfolio_site
+    restart: unless-stopped
+    networks:
+      - desk_network
+
   your_garage_web:
     build:
       context: ../frontend/your-garage-landing

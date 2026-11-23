@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CHRONOS — Variable Type & Grid Lab</title>
+  <style>
+    :root {
+      --bg: #0c0a08;
+      --surface: #15120f;
+      --line: #2c251d;
+      --text: #f4f4f6;
+      --muted: #9a9084;
+      --accent: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      min-height: 100dvh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 14px;
+    }
+    .brand {
+      font-weight: 900;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .square { width: 10px; height: 10px; background: var(--accent); }
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      padding: 14px;
+    }
+    .ctrl { display: flex; flex-direction: column; gap: 6px; font-family: ui-monospace, monospace; font-size: 11px; }
+    .ctrl label { display: flex; justify-content: space-between; color: var(--muted); }
+    .ctrl label span { color: var(--accent); font-weight: 700; }
+    input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+    .stage {
+      position: relative;
+      flex: 1;
+      min-height: 220px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+    .grid-lines {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      pointer-events: none;
+      opacity: 0.35;
+    }
+    .grid-lines div { border-right: 1px solid var(--line); }
+    .specimen {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: var(--text);
+      outline: none;
+      word-break: break-word;
+    }
+    .btn-row { display: flex; gap: 8px; }
+    button {
+      background: #1d1812;
+      color: var(--text);
+      border: 1px solid var(--line);
+      padding: 8px 12px;
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    button.active { background: var(--accent); color: #0c0a08; border-color: var(--accent); font-weight: 800; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand"><span class="square"></span> CHRONOS // TYPE ENGINE</div>
+    <div class="btn-row">
+      <button id="gridBtn" type="button" class="active">GRID ON</button>
+      <button id="colorBtn" type="button">ACCENT FILL</button>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="ctrl">
+      <label>SIZE <span id="sizeOut">54px</span></label>
+      <input id="sizeInput" type="range" min="24" max="96" value="54" />
+    </div>
+    <div class="ctrl">
+      <label>TRACKING <span id="trackOut">-0.04em</span></label>
+      <input id="trackInput" type="range" min="-8" max="12" value="-4" />
+    </div>
+    <div class="ctrl">
+      <label>LINE HEIGHT <span id="lhOut">0.95</span></label>
+      <input id="lhInput" type="range" min="80" max="145" value="95" />
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="grid-lines" id="gridLines">
+      <div></div><div></div><div></div><div></div><div></div><div></div>
+    </div>
+    <div class="specimen" id="specimen" contenteditable="true" spellcheck="false">
+      ARCHITECTURE IN MOTION. EDIT THIS TEXT LIVE.
+    </div>
+  </div>
+
+  <script>
+    const specimen = document.getElementById('specimen');
+    const sizeInput = document.getElementById('sizeInput');
+    const trackInput = document.getElementById('trackInput');
+    const lhInput = document.getElementById('lhInput');
+    const sizeOut = document.getElementById('sizeOut');
+    const trackOut = document.getElementById('trackOut');
+    const lhOut = document.getElementById('lhOut');
+    const gridLines = document.getElementById('gridLines');
+    const gridBtn = document.getElementById('gridBtn');
+    const colorBtn = document.getElementById('colorBtn');
+
+    function sync() {
+      const sz = sizeInput.value + 'px';
+      const tr = (trackInput.value / 100).toFixed(2) + 'em';
+      const lh = (lhInput.value / 100).toFixed(2);
+      specimen.style.fontSize = sz;
+      specimen.style.letterSpacing = tr;
+      specimen.style.lineHeight = lh;
+      sizeOut.textContent = sz;
+      trackOut.textContent = tr;
+      lhOut.textContent = lh;
+    }
+
+    sizeInput.addEventListener('input', sync);
+    trackInput.addEventListener('input', sync);
+    lhInput.addEventListener('input', sync);
+
+    let showGrid = true;
+    gridBtn.addEventListener('click', () => {
+      showGrid = !showGrid;
+      gridLines.style.opacity = showGrid ? '0.35' : '0';
+      gridBtn.classList.toggle('active', showGrid);
+      gridBtn.textContent = showGrid ? 'GRID ON' : 'GRID OFF';
+    });
+
+    let accentText = false;
+    colorBtn.addEventListener('click', () => {
+      accentText = !accentText;
+      specimen.style.color = accentText ? '#f59e0b' : '#f4f4f6';
+      colorBtn.classList.toggle('active', accentText);
+    });
+
+    sync();
+  </script>
+</body>
+</html>

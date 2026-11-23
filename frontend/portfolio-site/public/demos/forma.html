@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>forma. — Billing Platform</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #f2f1ed; color: #17171c; font-family: 'Space Grotesk', sans-serif; min-height: 100dvh; display: flex; }
+    aside { width: 220px; background: #e8e7e3; border-right: 1px solid #dadadd; padding: 28px 24px; display: flex; flex-direction: column; gap: 28px; }
+    .logo { font-size: 26px; font-weight: 700; letter-spacing: -0.05em; }
+    nav { display: flex; flex-direction: column; gap: 18px; font-size: 14px; color: #67676e; }
+    nav span.active { color: #17171c; font-weight: 700; }
+    main { flex: 1; padding: 36px; display: flex; flex-direction: column; gap: 24px; }
+    .top { display: flex; justify-content: space-between; align-items: center; }
+    h1 { font-size: 30px; font-weight: 700; }
+    .btn { background: #3b82f6; color: #fff; border: none; padding: 10px 16px; border-radius: 4px; font-weight: 700; font-size: 12px; cursor: pointer; }
+    .balances { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; }
+    .mono { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #67676e; }
+    .big { font-size: 44px; font-weight: 500; }
+    .mid { font-size: 26px; font-weight: 500; }
+    .row { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #dadadd; font-size: 13px; }
+    @media (max-width: 720px) { aside { display: none; } main { padding: 20px; } .big { font-size: 32px; } }
+  </style>
+</head>
+<body>
+  <aside>
+    <div class="logo">forma.</div>
+    <nav><span>Overview</span><span class="active">Invoices</span><span>Clients</span><span>Transactions</span><span>Settings</span></nav>
+    <div class="mono" style="margin-top:auto">LIVE DEMO ENVIRONMENT</div>
+  </aside>
+  <main>
+    <div class="top"><h1>Invoices</h1><button class="btn" type="button">New invoice</button></div>
+    <div class="balances">
+      <div><div class="mono">TOTAL OUTSTANDING</div><div class="big">$11,000.00</div></div>
+      <div><div class="mono">PAID THIS MONTH</div><div class="mid">$2,650.00</div></div>
+    </div>
+    <div>
+      <div class="row"><strong>Northstar Studio</strong><span>Nov 24, 2026</span><span>Sent</span><strong>$4,800.00</strong></div>
+      <div class="row"><strong>Atelier &amp; Co.</strong><span>Nov 22, 2026</span><span style="color:#317448">Paid</span><strong>$2,650.00</strong></div>
+      <div class="row"><strong>Common Ground</strong><span>Nov 20, 2026</span><span>Sent</span><strong>$6,200.00</strong></div>
+      <div class="row"><strong>Bureau Digital</strong><span>Nov 18, 2026</span><span>Draft</span><strong>$4,800.00</strong></div>
+    </div>
+  </main>
+</body>
+</html>

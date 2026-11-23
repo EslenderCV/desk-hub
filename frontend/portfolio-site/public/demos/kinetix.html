@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KINETIX — Spring Physics & Motion Tokens</title>
+  <style>
+    :root {
+      --bg: #0c0c12;
+      --surface: #14141d;
+      --line: #272736;
+      --text: #f4f4f6;
+      --muted: #8e8ea3;
+      --accent: #ff4d2e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+      min-height: 100dvh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 14px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      font-size: 1.25rem;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+    .badge {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      padding: 5px 10px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      flex: 1;
+    }
+    @media (min-width: 720px) {
+      .grid { grid-template-columns: 1.35fr 1fr; }
+    }
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .panel-title {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+    }
+    canvas {
+      width: 100%;
+      height: 220px;
+      background: #09090d;
+      border: 1px solid var(--line);
+      display: block;
+      cursor: crosshair;
+    }
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .control-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .control-label {
+      display: flex;
+      justify-content: space-between;
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+    }
+    .control-label span:last-child { color: var(--accent); font-weight: 700; }
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: auto;
+    }
+    button {
+      background: var(--accent);
+      color: #0a0a0e;
+      border: none;
+      padding: 11px 16px;
+      font-weight: 800;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+    button:hover { opacity: 0.92; }
+    button:active { transform: scale(0.97); }
+    button.secondary {
+      background: #1c1c28;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .cascade-card {
+      background: #09090d;
+      border: 1px solid var(--line);
+      padding: 12px 10px;
+      text-align: center;
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.25s;
+    }
+    .cascade-card strong {
+      display: block;
+      font-size: 18px;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    pre {
+      background: #09090d;
+      border: 1px solid var(--line);
+      padding: 12px;
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: #d4d4e0;
+      overflow-x: auto;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <span class="dot"></span>
+      <span>KINETIX // SPRING STUDIO</span>
+    </div>
+    <span class="badge" id="fpsBadge">60 FPS LOCKED</span>
+  </header>
+
+  <div class="grid">
+    <section class="panel">
+      <div class="panel-title">
+        <span>SPRING RESPONSE CURVE (CLICK CANVAS TO IMPULSE)</span>
+        <span id="energyVal">SETTLED</span>
+      </div>
+      <canvas id="springCanvas"></canvas>
+      <div class="cards" id="cascadeCards">
+        <div class="cascade-card"><strong>01</strong><span>STAGGER</span></div>
+        <div class="cascade-card"><strong>02</strong><span>INERTIA</span></div>
+        <div class="cascade-card"><strong>03</strong><span>SNAP</span></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-title">
+        <span>PHYSICS PARAMETERS</span>
+        <span>TOKEN EXPORT</span>
+      </div>
+      <div class="controls">
+        <div class="control-row">
+          <div class="control-label"><span>STIFFNESS</span><span id="stiffOut">220</span></div>
+          <input id="stiffness" type="range" min="80" max="500" value="220" />
+        </div>
+        <div class="control-row">
+          <div class="control-label"><span>DAMPING</span><span id="dampOut">18</span></div>
+          <input id="damping" type="range" min="6" max="45" value="18" />
+        </div>
+        <div class="control-row">
+          <div class="control-label"><span>MASS</span><span id="massOut">1.0</span></div>
+          <input id="mass" type="range" min="0.4" max="2.5" step="0.1" value="1.0" />
+        </div>
+      </div>
+
+      <pre id="tokenCode">{ stiffness: 220, damping: 18, mass: 1.0 }</pre>
+
+      <div class="btn-row">
+        <button id="impulseBtn" type="button">Launch Impulse</button>
+        <button id="presetBtn" type="button" class="secondary">Cycle Preset</button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('springCanvas');
+    const ctx = canvas.getContext('2d');
+    const stiffInput = document.getElementById('stiffness');
+    const dampInput = document.getElementById('damping');
+    const massInput = document.getElementById('mass');
+    const stiffOut = document.getElementById('stiffOut');
+    const dampOut = document.getElementById('dampOut');
+    const massOut = document.getElementById('massOut');
+    const tokenCode = document.getElementById('tokenCode');
+    const energyVal = document.getElementById('energyVal');
+    const cards = Array.from(document.querySelectorAll('.cascade-card'));
+
+    const presets = [
+      { s: 220, d: 18, m: 1.0 },
+      { s: 420, d: 26, m: 0.8 },
+      { s: 120, d: 10, m: 1.6 },
+      { s: 300, d: 34, m: 1.1 }
+    ];
+    let presetIdx = 0;
+
+    let pos = 0;
+    let vel = 0;
+    let target = 0;
+    let history = new Array(140).fill(0);
+
+    function resize() {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * devicePixelRatio;
+      canvas.height = rect.height * devicePixelRatio;
+      ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    function updateLabels() {
+      stiffOut.textContent = stiffInput.value;
+      dampOut.textContent = dampInput.value;
+      massOut.textContent = Number(massInput.value).toFixed(1);
+      tokenCode.textContent = `{ stiffness: ${stiffInput.value}, damping: ${dampInput.value}, mass: ${Number(massInput.value).toFixed(1)} }`;
+    }
+
+    function triggerImpulse(amplitude = 1) {
+      vel = 14 * amplitude;
+      pos = -0.65 * amplitude;
+      cards.forEach((c, i) => {
+        c.style.borderColor = '#ff4d2e';
+        c.style.transform = `translateY(${(-10 * (i + 1)) % 18}px) scale(1.03)`;
+        setTimeout(() => {
+          c.style.transform = 'translateY(0) scale(1)';
+          c.style.borderColor = '#272736';
+        }, 160 + i * 70);
+      });
+    }
+
+    stiffInput.addEventListener('input', () => { updateLabels(); triggerImpulse(0.7); });
+    dampInput.addEventListener('input', () => { updateLabels(); triggerImpulse(0.7); });
+    massInput.addEventListener('input', () => { updateLabels(); triggerImpulse(0.7); });
+    document.getElementById('impulseBtn').addEventListener('click', () => triggerImpulse(1.15));
+    canvas.addEventListener('click', () => triggerImpulse(1.2));
+    document.getElementById('presetBtn').addEventListener('click', () => {
+      presetIdx = (presetIdx + 1) % presets.length;
+      const p = presets[presetIdx];
+      stiffInput.value = p.s;
+      dampInput.value = p.d;
+      massInput.value = p.m;
+      updateLabels();
+      triggerImpulse(1.1);
+    });
+
+    let last = performance.now();
+    function tick(now) {
+      const dt = Math.min((now - last) / 1000, 0.032);
+      last = now;
+
+      const k = Number(stiffInput.value);
+      const c = Number(dampInput.value);
+      const m = Number(massInput.value);
+
+      const force = -k * (pos - target) - c * vel;
+      vel += (force / m) * dt;
+      pos += vel * dt;
+
+      history.push(pos);
+      if (history.length > 140) history.shift();
+
+      const active = Math.abs(vel) > 0.02 || Math.abs(pos) > 0.005;
+      energyVal.textContent = active ? 'OSCILLATING' : 'SETTLED';
+
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      ctx.clearRect(0, 0, w, h);
+
+      ctx.strokeStyle = '#1b1b26';
+      ctx.lineWidth = 1;
+      for (let y = h * 0.25; y < h; y += h * 0.25) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+      }
+
+      ctx.strokeStyle = '#ff4d2e';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      for (let i = 0; i < history.length; i++) {
+        const x = (i / (history.length - 1)) * (w - 48);
+        const y = h / 2 - history[i] * (h * 0.36);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      const ballY = h / 2 - pos * (h * 0.36);
+      ctx.fillStyle = '#ff4d2e';
+      ctx.beginPath();
+      ctx.arc(w - 32, ballY, 10, 0, Math.PI * 2);
+      ctx.fill();
+
+      requestAnimationFrame(tick);
+    }
+    updateLabels();
+    triggerImpulse(1);
+    requestAnimationFrame(tick);
+  </script>
+</body>
+</html>

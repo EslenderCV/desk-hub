@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>nexo. — Enterprise Operations</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #101014; color: #f4f4f6; font-family: 'Space Grotesk', sans-serif; min-height: 100dvh; display: flex; }
+    aside { width: 220px; background: #16161b; border-right: 1px solid #222228; padding: 28px 24px; display: flex; flex-direction: column; gap: 28px; }
+    .logo { font-size: 26px; font-weight: 700; letter-spacing: -0.05em; }
+    nav { display: flex; flex-direction: column; gap: 18px; font-size: 14px; color: #92929b; }
+    nav span.active { color: #f4f4f6; font-weight: 700; }
+    .env { margin-top: auto; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #92929b; }
+    main { flex: 1; padding: 36px; display: flex; flex-direction: column; gap: 24px; }
+    .top { display: flex; justify-content: space-between; align-items: center; }
+    h1 { font-size: 30px; font-weight: 700; }
+    .btn { background: #ff5500; color: #fff; border: none; padding: 10px 16px; border-radius: 4px; font-weight: 700; font-size: 12px; cursor: pointer; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
+    .card { background: #1a1a20; border: 1px solid #29292f; border-radius: 5px; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+    .card small { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #92929b; }
+    .card strong { font-size: 30px; font-weight: 500; }
+    .card span { font-size: 11px; color: #92929b; }
+    .row { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #29292f; font-size: 13px; }
+    .mono { font-family: 'JetBrains Mono', monospace; color: #92929b; }
+    .ok { color: #a3e635; }
+    @media (max-width: 720px) { aside { display: none; } main { padding: 20px; } }
+  </style>
+</head>
+<body>
+  <aside>
+    <div class="logo">nexo.</div>
+    <nav><span class="active">Overview</span><span>Orders</span><span>Inventory</span><span>Customers</span><span>Reports</span></nav>
+    <div class="env">LIVE DEMO ENVIRONMENT</div>
+  </aside>
+  <main>
+    <div class="top"><h1>Overview</h1><button class="btn" type="button" onclick="addOrder()">New order</button></div>
+    <div class="cards">
+      <div class="card"><small>REVENUE</small><strong id="rev">$24,680</strong><span>+12.8% this month</span></div>
+      <div class="card"><small>ORDERS</small><strong id="ord">186</strong><span>24 awaiting fulfillment</span></div>
+      <div class="card"><small>ACTIVE CLIENTS</small><strong>48</strong><span>Across 8 accounts</span></div>
+    </div>
+    <div>
+      <div class="row"><strong>Recent orders</strong><span class="mono" style="color:#ff5500">VIEW ALL</span></div>
+      <div id="orders">
+        <div class="row"><span class="mono">#ORD-1084</span><span>Casa del Sol</span><span class="ok">Fulfilled</span><span>$1,240.00</span></div>
+        <div class="row"><span class="mono">#ORD-1083</span><span>Estudio Norte</span><span style="color:#92929b">Processing</span><span>$860.00</span></div>
+        <div class="row"><span class="mono">#ORD-1082</span><span>Mercado Central</span><span class="ok">Fulfilled</span><span>$2,480.00</span></div>
+        <div class="row"><span class="mono">#ORD-1081</span><span>Taller Uno</span><span style="color:#92929b">Pending</span><span>$640.00</span></div>
+      </div>
+    </div>
+  </main>
+  <script>
+    let count = 186;
+    let rev = 24680;
+    let id = 1085;
+    function addOrder() {
+      count += 1;
+      rev += 950;
+      document.getElementById('ord').textContent = count;
+      document.getElementById('rev').textContent = '$' + rev.toLocaleString();
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML = `<span class="mono">#ORD-${id++}</span><span>Nuevo Pedido</span><span class="ok">Fulfilled</span><span>$950.00</span>`;
+      const container = document.getElementById('orders');
+      container.prepend(row);
+    }
+  </script>
+</body>
+</html>

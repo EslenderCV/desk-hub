@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HYPERGRID — 60FPS Telemetry Deck</title>
+  <style>
+    :root {
+      --bg: #0a0c0a;
+      --surface: #121512;
+      --line: #232b23;
+      --text: #f4f4f6;
+      --muted: #8a968a;
+      --accent: #a3e635;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      min-height: 100dvh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 14px;
+    }
+    .brand {
+      font-weight: 900;
+      font-size: 1.2rem;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+    .tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    button {
+      background: var(--surface);
+      color: var(--muted);
+      border: 1px solid var(--line);
+      padding: 8px 12px;
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    button.active {
+      background: var(--accent);
+      color: #090b09;
+      border-color: var(--accent);
+      font-weight: 800;
+    }
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .kpi {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      padding: 12px;
+    }
+    .kpi-label {
+      font-family: ui-monospace, monospace;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.14em;
+    }
+    .kpi-val {
+      margin-top: 4px;
+      font-size: 1.45rem;
+      font-weight: 900;
+      color: var(--accent);
+    }
+    canvas {
+      width: 100%;
+      height: 170px;
+      background: #080a08;
+      border: 1px solid var(--line);
+      display: block;
+    }
+    .nodes {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 8px;
+    }
+    .node {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      padding: 10px;
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .node span:last-child { color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand"><span class="dot"></span> HYPERGRID // TELEMETRY</div>
+    <div class="tabs">
+      <button type="button" class="active" data-filter="ALL">ALL</button>
+      <button type="button" data-filter="GPU">GPU</button>
+      <button type="button" data-filter="DOM">DOM</button>
+      <button type="button" id="streamBtn">PAUSE</button>
+    </div>
+  </header>
+
+  <div class="kpis">
+    <div class="kpi"><div class="kpi-label">FRAME TIME</div><div class="kpi-val" id="frameVal">4.2 ms</div></div>
+    <div class="kpi"><div class="kpi-label">THROUGHPUT</div><div class="kpi-val" id="rateVal">60 Hz</div></div>
+    <div class="kpi"><div class="kpi-label">DROPPED</div><div class="kpi-val">0.0%</div></div>
+  </div>
+
+  <canvas id="perfCanvas"></canvas>
+  <div class="nodes" id="nodes"></div>
+
+  <script>
+    const nodesData = [
+      { id: 'NODE-01', type: 'GPU', load: 14 },
+      { id: 'NODE-02', type: 'DOM', load: 22 },
+      { id: 'NODE-03', type: 'GPU', load: 18 },
+      { id: 'NODE-04', type: 'DOM', load: 9 }
+    ];
+    let filter = 'ALL';
+    let streaming = true;
+    const points = Array.from({ length: 70 }, () => 18 + Math.random() * 14);
+    const canvas = document.getElementById('perfCanvas');
+    const ctx = canvas.getContext('2d');
+    const nodesEl = document.getElementById('nodes');
+    const frameVal = document.getElementById('frameVal');
+    const streamBtn = document.getElementById('streamBtn');
+
+    document.querySelectorAll('[data-filter]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        filter = btn.dataset.filter;
+        renderNodes();
+      });
+    });
+
+    streamBtn.addEventListener('click', () => {
+      streaming = !streaming;
+      streamBtn.textContent = streaming ? 'PAUSE' : 'RESUME';
+    });
+
+    function renderNodes() {
+      const list = filter === 'ALL' ? nodesData : nodesData.filter(n => n.type === filter);
+      nodesEl.innerHTML = list.map(n => `
+        <div class="node">
+          <span>${n.id} [${n.type}]</span>
+          <span>${n.load}%</span>
+        </div>
+      `).join('');
+    }
+
+    function resize() {
+      const r = canvas.getBoundingClientRect();
+      canvas.width = r.width * devicePixelRatio;
+      canvas.height = r.height * devicePixelRatio;
+      ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    setInterval(() => {
+      if (!streaming) return;
+      const next = 14 + Math.random() * 24;
+      points.push(next);
+      if (points.length > 70) points.shift();
+      frameVal.textContent = (2.8 + next / 14).toFixed(1) + ' ms';
+      nodesData.forEach(n => { n.load = Math.max(6, Math.min(48, Math.round(n.load + (Math.random() - 0.5) * 6))); });
+      renderNodes();
+    }, 320);
+
+    function draw() {
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      ctx.clearRect(0, 0, w, h);
+
+      ctx.strokeStyle = '#1a221a';
+      ctx.lineWidth = 1;
+      for (let y = h * 0.25; y < h; y += h * 0.25) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+      }
+
+      ctx.strokeStyle = '#a3e635';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      points.forEach((v, i) => {
+        const x = (i / (points.length - 1)) * w;
+        const y = h - (v / 60) * h;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+
+      requestAnimationFrame(draw);
+    }
+
+    renderNodes();
+    requestAnimationFrame(draw);
+  </script>
+</body>
+</html>

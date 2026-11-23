@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-canvas: #0a0a0e;
+    --bg-void: #050507;
+    --bg-stage: #141418;
+    --bg-app: #101014;
+    --border-hairline: #222228;
+    --text-crisp: #f4f4f6;
+    --text-muted: #8a8a93;
+    --accent-orange: #ff5500;
+    --accent-cobalt: #3b82f6;
+    --accent-lime: #a3e635;
+  }
+
+  html {
+    background-color: var(--bg-canvas);
+    color: var(--text-crisp);
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    line-height: 1.5;
+    text-align: start;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--bg-canvas);
+    color: var(--text-crisp);
+    overflow-x: clip;
+    line-height: 1.5;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+/* Transparent PNG hero cutout edge feathering (unmasked at top y=0) */
+.hero-cutout-mask {
+  -webkit-mask-image: radial-gradient(
+    ellipse 78% 95% at 50% 32%,
+    #000 60%,
+    rgba(0, 0, 0, 0.8) 80%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 78% 95% at 50% 32%,
+    #000 60%,
+    rgba(0, 0, 0, 0.8) 80%,
+    transparent 100%
+  );
+}
+
+/* Lenis smooth scroll base */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}

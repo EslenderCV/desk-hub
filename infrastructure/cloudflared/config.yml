@@ -1,3 +1,6 @@
+protocol: http2
+edge-ip-version: "4"
+no-prechecks: true
 tunnel: 7a22a2c9-9669-4415-ac72-23ef10143968
 credentials-file: /etc/cloudflared/7a22a2c9-9669-4415-ac72-23ef10143968.json
 
@@ -21,6 +24,10 @@ ingress:
   # Pi-hole Admin Interface
   - hostname: pihole.eslender.dev
     service: http://pihole:80
+
+  # yourGarage Landing Page Subdomain
+  - hostname: yourgarage.eslender.dev
+    service: http://web_gateway:80
 
   # Mandatory Catch-All Fallback Rule
   - service: http_status:404

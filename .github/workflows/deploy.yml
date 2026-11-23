@@ -13,11 +13,11 @@ on:
       target:
         description: 'Deployment target'
         required: true
-        default: 'mood'
+        default: 'pi'
         type: choice
         options:
-          - mood
           - pi
+          - mood
 
 # Explicitly scope minimal GITHUB_TOKEN permissions (Least Privilege)
 permissions:
@@ -30,12 +30,60 @@ concurrency:
 
 jobs:
   # ============================================================
-  # MOOD SERVER DEPLOYMENT (Default target)
+  # RASPBERRY PI DEPLOYMENT (Primary / Default target)
+  # Runs on Raspberry Pi ARM64 self-hosted runner
+  # ============================================================
+  deploy-pi:
+    name: Build & Deploy to Raspberry Pi
+    if: ${{ github.event_name == 'push' || github.event.inputs.target == 'pi' }}
+    runs-on: [self-hosted, linux, ARM64]
+
+    steps:
+      - name: 📥 Checkout Repository Code
+        uses: actions/checkout@v4
+        with:
+          clean: true
+
+      - name: 🛠️ Validate Docker Compose Config
+        run: |
+          cd infrastructure
+          docker compose -f docker-compose.yml config --quiet
+        shell: bash
+
+      - name: 🚀 Rebuild & Deploy Containers
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
+        run: |
+          cd infrastructure
+          docker compose -f docker-compose.yml up -d --build
+        shell: bash
+
+      - name: 🧹 Prune Unused Docker Images
+        if: always()
+        run: |
+          docker image prune -f
+        shell: bash
+
+      - name: 📝 Generate Deployment Summary
+        if: always()
+        run: |
+          echo "### 🚀 Deployment Report" >> $GITHUB_STEP_SUMMARY
+          echo "- **Target:** Raspberry Pi" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered By:** @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+        shell: bash
+
+  # ============================================================
+  # MOOD SERVER DEPLOYMENT (Alternative target)
   # Runs on MOOD server's dedicated x64 self-hosted runner
   # ============================================================
   deploy-mood:
     name: Build & Deploy to MOOD Server
-    if: ${{ github.event.inputs.target != 'pi' }}
+    if: ${{ github.event.inputs.target == 'mood' }}
     runs-on: [self-hosted, linux, mood]
 
     steps:
@@ -90,56 +138,6 @@ jobs:
         run: |
           echo "### 🚀 Deployment Report" >> $GITHUB_STEP_SUMMARY
           echo "- **Target:** MOOD Server" >> $GITHUB_STEP_SUMMARY
-          echo "- **Status:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Triggered By:** @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
-        shell: bash
-
-  # ============================================================
-  # RASPBERRY PI DEPLOYMENT (Manual fallback)
-  # Runs on Raspberry Pi ARM64 self-hosted runner
-  # ============================================================
-  deploy-pi:
-    name: Build & Deploy to Raspberry Pi
-    if: ${{ github.event.inputs.target == 'pi' }}
-    runs-on: [self-hosted, linux, ARM64]
-
-    steps:
-      - name: 📥 Checkout Repository Code
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.SUBMODULE_TOKEN }}
-          submodules: recursive
-          clean: true
-
-      - name: 🛠️ Validate Docker Compose Config
-        run: |
-          cd infrastructure
-          docker compose -f docker-compose.yml config --quiet
-        shell: bash
-
-      - name: 🚀 Rebuild & Deploy Containers
-        env:
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
-          MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
-        run: |
-          cd infrastructure
-          docker compose -f docker-compose.yml up -d --build
-        shell: bash
-
-      - name: 🧹 Prune Unused Docker Images
-        if: always()
-        run: |
-          docker image prune -f
-        shell: bash
-
-      - name: 📝 Generate Deployment Summary
-        if: always()
-        run: |
-          echo "### 🚀 Deployment Report" >> $GITHUB_STEP_SUMMARY
-          echo "- **Target:** Raspberry Pi" >> $GITHUB_STEP_SUMMARY
           echo "- **Status:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Triggered By:** @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY

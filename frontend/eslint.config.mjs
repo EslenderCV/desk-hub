@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "portfolio-site/**",
+    "your-garage-landing/**",
   ]),
 ]);
 

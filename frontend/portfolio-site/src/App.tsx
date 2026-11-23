@@ -5,6 +5,7 @@ import { useLenis } from './hooks/useLenis';
 import { LanguageToggle } from './components/LanguageToggle';
 import { Hero } from './components/Hero';
 import { Statement } from './components/Statement';
+import { ActivityLedger } from './components/ActivityLedger';
 import { LiveShowcase } from './components/LiveShowcase';
 import { Footer } from './components/Footer';
 
@@ -52,6 +53,7 @@ export function App() {
         <main>
           <Hero copy={siteContent.hero} />
           <Statement copy={siteContent.approach} />
+          <ActivityLedger copy={siteContent.activity} language={language} />
           <LiveShowcase copy={siteContent.work} />
         </main>
 

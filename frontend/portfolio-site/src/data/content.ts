@@ -61,6 +61,15 @@ export interface SiteContent {
     bio: string;
     disciplines: DisciplineItem[];
   };
+  activity: {
+    heading: string;
+    runnerStatus: string;
+    piDeployedLabel: string;
+    deployingLabel: string;
+    verifiedCommitLabel: string;
+    profileUrlLabel: string;
+    profileUrl: string;
+  };
   work: {
     sectionLabel: string;
     sectionMeta: string;
@@ -133,6 +142,15 @@ export const content: Record<Language, SiteContent> = {
           lines: ['SQL Server, MySQL, MongoDB,', 'Git, CI/CD, Figma'],
         },
       ],
+    },
+    activity: {
+      heading: 'LIVE ACTIVITY // GITHUB & RASPBERRY PI CI',
+      runnerStatus: 'RUNNER ONLINE · ARM64',
+      piDeployedLabel: 'PI DEPLOYED',
+      deployingLabel: 'PI DEPLOYING',
+      verifiedCommitLabel: 'MAIN',
+      profileUrlLabel: 'VIEW ALL ON GITHUB',
+      profileUrl: 'https://github.com/EslenderCV',
     },
     work: {
       sectionLabel: '02 / SELECTED WORK',
@@ -304,6 +322,15 @@ export const content: Record<Language, SiteContent> = {
           lines: ['SQL Server, MySQL, MongoDB,', 'Git, CI/CD, Figma'],
         },
       ],
+    },
+    activity: {
+      heading: 'ACTIVIDAD EN VIVO // GITHUB Y CI RASPBERRY PI',
+      runnerStatus: 'RUNNER ACTIVO · ARM64',
+      piDeployedLabel: 'DESPLEGADO EN PI',
+      deployingLabel: 'DESPLEGANDO EN PI',
+      verifiedCommitLabel: 'MAIN',
+      profileUrlLabel: 'VER TODO EN GITHUB',
+      profileUrl: 'https://github.com/EslenderCV',
     },
     work: {
       sectionLabel: '02 / OBRA SELECCIONADA',

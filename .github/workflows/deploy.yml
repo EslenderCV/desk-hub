@@ -59,6 +59,7 @@ jobs:
         run: |
           cd infrastructure
           docker compose -f docker-compose.yml up -d --build
+          docker compose -f docker-compose.yml restart web_gateway
         shell: bash
 
       - name: 🧹 Prune Unused Docker Images

@@ -13,7 +13,7 @@ export interface SystemNode {
 }
 
 export interface ProjectConfig {
-  id: 'yourgarage' | 'forma' | 'devflow';
+  id: 'yourgarage' | 'synctrack' | 'devflow';
   kicker: string;
   title: string;
   accentColor: string;
@@ -199,35 +199,38 @@ export const content: Record<Language, SiteContent> = {
             'An offline-first mobile app paired with an ESP32 OBD-II BLE dongle and local SQLite persistence.',
         },
         {
-          id: 'forma',
-          kicker: '02 / BILLING PLATFORM',
-          title: 'Forma',
+          id: 'synctrack',
+          kicker: '02 / AUDIO SYNC & LYRIC COMPLIANCE STUDIO',
+          title: 'SyncTrack',
           accentColor: '#3B82F6',
           externalIcon: '/assets/figma/external-link-blue.svg',
-          headline: 'Every invoice. Every detail. Under control.',
-          subline: 'A responsive billing workspace with a clean API at its core.',
-          liveUrl: '/demos/forma.html',
-          tags: ['REACT / VITE', 'NODE.JS / REST', 'MONGODB'],
-          systemPills: ['REACT / VITE', 'NODE.JS / REST', 'MONGODB', 'GIT / CI/CD'],
-          buildLabel: 'SELF-INITIATED / CONCEPT BUILD',
+          headline: 'Distributor-compliant lyrics & centisecond .lrc sync.',
+          subline:
+            'Deterministic lyric formatter for Apple Music & Musixmatch with local Web Audio waveform synchronization and Polar checkout.',
+          liveUrl: 'https://synctrack.studio',
+          githubUrl: 'https://github.com/EslenderCV/syncTrack',
+          tags: ['NEXT.JS / TYPESCRIPT', 'WEB AUDIO / WAVESURFER', 'POLAR.SH / ARM64'],
+          systemPills: ['NEXT.JS 16 / REACT 19', 'TYPESCRIPT', 'WAVESURFER.JS', 'POLAR.SH WEBHOOKS'],
+          buildLabel: 'LIVE BUILD · SYNCTRACK.STUDIO',
           systemNodes: [
             {
               indexLabel: '01 / CLIENT',
-              title: 'React + Vite',
-              subtitle: 'RESPONSIVE UI',
+              title: 'Next.js + WaveSurfer',
+              subtitle: 'LOCAL WEB AUDIO / LRC STUDIO',
             },
             {
-              indexLabel: '02 / API',
-              title: 'Node.js REST API',
-              subtitle: 'VALIDATION / AUTH / LOGIC',
+              indexLabel: '02 / ENGINE',
+              title: 'Lyric Linter & Polar API',
+              subtitle: 'APPLE MUSIC / MUSIXMATCH RULES',
             },
             {
-              indexLabel: '03 / DATABASE',
-              title: 'MongoDB',
-              subtitle: 'PERSISTENCE / QUERIES',
+              indexLabel: '03 / RUNTIME',
+              title: 'Raspberry Pi ARM64',
+              subtitle: 'DOCKER / IDEMPOTENT LEDGER',
             },
           ],
-          systemSummary: 'A typed client. A focused API. A deliberate data model.',
+          systemSummary:
+            'Zero-upload browser audio decoding paired with a deterministic lyric linter and Polar.sh webhook credit ledger.',
         },
         {
           id: 'devflow',
@@ -378,35 +381,38 @@ export const content: Record<Language, SiteContent> = {
             'Una app móvil offline-first conectada a un dongle ESP32 OBD-II BLE con persistencia local en SQLite.',
         },
         {
-          id: 'forma',
-          kicker: '02 / PLATAFORMA DE FACTURACIÓN',
-          title: 'Forma',
+          id: 'synctrack',
+          kicker: '02 / ESTUDIO DE SINCRONIZACIÓN LRC Y LETRAS',
+          title: 'SyncTrack',
           accentColor: '#3B82F6',
           externalIcon: '/assets/figma/external-link-blue.svg',
-          headline: 'Cada factura. Cada detalle. Bajo control.',
-          subline: 'Un espacio de facturación responsivo con una API limpia en su núcleo.',
-          liveUrl: '/demos/forma.html',
-          tags: ['REACT / VITE', 'NODE.JS / REST', 'MONGODB'],
-          systemPills: ['REACT / VITE', 'NODE.JS / REST', 'MONGODB', 'GIT / CI/CD'],
-          buildLabel: 'INICIATIVA PROPIA / CONCEPTO',
+          headline: 'Letras compatibles con distribuidoras y sincronización .lrc.',
+          subline:
+            'Formateador determinista para Apple Music y Musixmatch con sincronización de ondas Web Audio en navegador y pagos vía Polar.',
+          liveUrl: 'https://synctrack.studio',
+          githubUrl: 'https://github.com/EslenderCV/syncTrack',
+          tags: ['NEXT.JS / TYPESCRIPT', 'WEB AUDIO / WAVESURFER', 'POLAR.SH / ARM64'],
+          systemPills: ['NEXT.JS 16 / REACT 19', 'TYPESCRIPT', 'WAVESURFER.JS', 'POLAR.SH WEBHOOKS'],
+          buildLabel: 'EN PRODUCCIÓN · SYNCTRACK.STUDIO',
           systemNodes: [
             {
               indexLabel: '01 / CLIENTE',
-              title: 'React + Vite',
-              subtitle: 'UI RESPONSIVA',
+              title: 'Next.js + WaveSurfer',
+              subtitle: 'WEB AUDIO LOCAL / ESTUDIO LRC',
             },
             {
-              indexLabel: '02 / API',
-              title: 'Node.js REST API',
-              subtitle: 'VALIDACIÓN / AUTH / LÓGICA',
+              indexLabel: '02 / MOTOR',
+              title: 'Linter de Letras y Polar',
+              subtitle: 'REGLAS APPLE MUSIC / MUSIXMATCH',
             },
             {
-              indexLabel: '03 / BASE DE DATOS',
-              title: 'MongoDB',
-              subtitle: 'PERSISTENCIA / CONSULTAS',
+              indexLabel: '03 / RUNTIME',
+              title: 'Raspberry Pi ARM64',
+              subtitle: 'DOCKER / REGISTRO IDEMPOTENTE',
             },
           ],
-          systemSummary: 'Un cliente tipado. Una API enfocada. Un modelo de datos deliberado.',
+          systemSummary:
+            'Decodificación de audio 100% en navegador junto a un linter determinista de letras y créditos vía webhooks de Polar.sh.',
         },
         {
           id: 'devflow',

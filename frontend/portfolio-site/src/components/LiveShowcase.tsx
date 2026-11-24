@@ -9,25 +9,28 @@ interface LiveShowcaseProps {
 
 type PreviewMode = 'desktop' | 'mobile' | 'system';
 
-const FORMA_INVOICES = [
-  { client: 'Northstar Studio', date: 'Nov 24, 2026', status: 'Sent', amount: '$4,800.00', paid: false },
-  { client: 'Atelier & Co.', date: 'Nov 22, 2026', status: 'Paid', amount: '$2,650.00', paid: true },
-  { client: 'Common Ground', date: 'Nov 20, 2026', status: 'Sent', amount: '$6,200.00', paid: false },
-  { client: 'Bureau Digital', date: 'Nov 18, 2026', status: 'Draft', amount: '$4,800.00', paid: false },
-];
-
-function YourGarageApp({ mobile, liveUrl }: { mobile?: boolean; liveUrl: string }) {
+function LiveIframeApp({
+  mobile,
+  liveUrl,
+  title,
+  accentColor,
+}: {
+  mobile?: boolean;
+  liveUrl: string;
+  title: string;
+  accentColor: string;
+}) {
   const [isInteractive, setIsInteractive] = useState(false);
 
   if (mobile) {
     return (
       <div className="bg-[#0D0D11] flex h-[510px] items-center justify-center p-4 w-full">
-        <div className="relative bg-[#171A20] border-[5px] border-[#3E3E45] flex h-[466px] items-start overflow-hidden rounded-[20px] w-[336px] shadow-2xl">
+        <div className="relative bg-[#101014] border-[5px] border-[#3E3E45] flex h-[466px] items-start overflow-hidden rounded-[20px] w-[336px] shadow-2xl">
           <iframe
             src={liveUrl}
-            title="yourGarage Mobile Live Preview"
+            title={`${title} Mobile Live Preview`}
             loading="lazy"
-            className={`w-full h-full border-0 bg-[#171A20] ${
+            className={`w-full h-full border-0 bg-[#101014] ${
               isInteractive ? 'pointer-events-auto' : 'pointer-events-none'
             }`}
           />
@@ -38,7 +41,10 @@ function YourGarageApp({ mobile, liveUrl }: { mobile?: boolean; liveUrl: string 
               onClick={() => setIsInteractive(true)}
               className="group absolute inset-0 z-10 flex flex-col items-center justify-end pb-6 bg-gradient-to-t from-[#050507]/80 via-transparent to-transparent cursor-pointer focus:outline-none"
             >
-              <span className="inline-flex items-center gap-2 rounded-full bg-[#FF5500] px-4 py-2 font-mono text-[11px] font-medium text-[#050507] shadow-lg transition-transform duration-200 group-hover:scale-105">
+              <span
+                style={{ backgroundColor: accentColor }}
+                className="inline-flex items-center gap-2 rounded-full px-4 py-2 font-mono text-[11px] font-medium text-[#050507] shadow-lg transition-transform duration-200 group-hover:scale-105"
+              >
                 <MousePointerClick className="w-3.5 h-3.5" />
                 <span>CLICK TO INTERACT</span>
               </span>
@@ -47,7 +53,8 @@ function YourGarageApp({ mobile, liveUrl }: { mobile?: boolean; liveUrl: string 
             <button
               type="button"
               onClick={() => setIsInteractive(false)}
-              className="absolute top-2.5 right-2.5 z-20 inline-flex items-center gap-1.5 rounded-full bg-[#050507]/90 border border-[#222228] px-3 py-1 font-mono text-[10px] text-[#FF5500] hover:border-[#FF5500] transition-colors"
+              style={{ color: accentColor }}
+              className="absolute top-2.5 right-2.5 z-20 inline-flex items-center gap-1.5 rounded-full bg-[#050507]/90 border border-[#222228] px-3 py-1 font-mono text-[10px] hover:border-current transition-colors"
             >
               <Lock className="w-3 h-3" />
               <span>LOCK</span>
@@ -59,12 +66,12 @@ function YourGarageApp({ mobile, liveUrl }: { mobile?: boolean; liveUrl: string 
   }
 
   return (
-    <div className="relative bg-[#171A20] h-[510px] w-full overflow-hidden">
+    <div className="relative bg-[#101014] h-[510px] w-full overflow-hidden">
       <iframe
         src={liveUrl}
-        title="yourGarage — Smart Vehicle Maintenance & ESP32 OBD-II Tracker"
+        title={title}
         loading="lazy"
-        className={`w-full h-full border-0 bg-[#171A20] ${
+        className={`w-full h-full border-0 bg-[#101014] ${
           isInteractive ? 'pointer-events-auto' : 'pointer-events-none'
         }`}
       />
@@ -75,7 +82,10 @@ function YourGarageApp({ mobile, liveUrl }: { mobile?: boolean; liveUrl: string 
           onClick={() => setIsInteractive(true)}
           className="group absolute inset-0 z-10 flex flex-col items-center justify-end pb-7 bg-gradient-to-t from-[#050507]/75 via-transparent to-transparent cursor-pointer focus:outline-none"
         >
-          <span className="inline-flex items-center gap-2 rounded-full bg-[#FF5500] px-5 py-2.5 font-mono text-[11px] font-medium text-[#050507] shadow-xl transition-transform duration-200 group-hover:scale-105">
+          <span
+            style={{ backgroundColor: accentColor }}
+            className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 font-mono text-[11px] font-medium text-[#050507] shadow-xl transition-transform duration-200 group-hover:scale-105"
+          >
             <MousePointerClick className="w-3.5 h-3.5" />
             <span>CLICK TO INTERACT WITH LIVE SITE</span>
           </span>
@@ -84,167 +94,13 @@ function YourGarageApp({ mobile, liveUrl }: { mobile?: boolean; liveUrl: string 
         <button
           type="button"
           onClick={() => setIsInteractive(false)}
-          className="absolute top-3 right-3 z-20 inline-flex items-center gap-1.5 rounded-full bg-[#050507]/90 border border-[#222228] px-3.5 py-1.5 font-mono text-[10px] text-[#FF5500] hover:border-[#FF5500] transition-colors shadow-lg"
+          style={{ color: accentColor }}
+          className="absolute top-3 right-3 z-20 inline-flex items-center gap-1.5 rounded-full bg-[#050507]/90 border border-[#222228] px-3.5 py-1.5 font-mono text-[10px] hover:border-current transition-colors shadow-lg"
         >
           <Lock className="w-3 h-3" />
           <span>LOCK SCROLL</span>
         </button>
       )}
-    </div>
-  );
-}
-
-function FormaApp({ mobile }: { mobile?: boolean }) {
-  const [activeNav, setActiveNav] = useState('Invoices');
-  const [filter, setFilter] = useState<'All invoices' | 'Draft' | 'Sent' | 'Paid'>('All invoices');
-
-  const filtered =
-    filter === 'All invoices'
-      ? FORMA_INVOICES
-      : FORMA_INVOICES.filter((inv) => inv.status === filter);
-
-  if (mobile) {
-    return (
-      <div className="bg-[#0D0D11] flex h-[474px] items-center justify-center p-4 w-full">
-        <div className="bg-[#F2F1ED] border-[5px] border-[#3E3E45] flex h-[430px] items-start overflow-hidden rounded-[18px] w-[302px]">
-          <div className="flex flex-1 flex-col gap-[20px] h-full p-[20px] min-w-0">
-            <p className="font-bold text-[23px] text-[#17171C] leading-normal">Invoices</p>
-
-            <div className="flex flex-col gap-[6px]">
-              <span className="font-mono text-[10px] text-[#67676E]">TOTAL OUTSTANDING</span>
-              <span className="font-medium text-[29px] text-[#17171C] leading-none">$11,000.00</span>
-            </div>
-
-            <div className="flex gap-[18px] font-medium text-[12px]">
-              {(['All invoices', 'Draft', 'Sent', 'Paid'] as const).map((tab) => (
-                <button
-                  key={tab}
-                  type="button"
-                  onClick={() => setFilter(tab)}
-                  className={filter === tab ? 'text-[#3B82F6]' : 'text-[#67676E]'}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-
-            <div className="h-px bg-[#DADADD] w-full" />
-
-            <div className="flex flex-col gap-[14px]">
-              {filtered.map((inv) => (
-                <div key={inv.client} className="contents">
-                  <div className="flex items-center justify-between font-medium text-[13px] text-[#17171C]">
-                    <span>{inv.client}</span>
-                    <span>{inv.amount}</span>
-                  </div>
-                  <div className="h-px bg-[#DADADD] w-full" />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="bg-[#F2F1ED] flex flex-col md:flex-row min-h-[474px] w-full text-[#17171C]">
-      {/* Sidebar */}
-      <div className="bg-[#E8E7E3] flex flex-row md:flex-col justify-between md:justify-start gap-6 md:gap-[30px] p-5 md:p-[24px] md:w-[208px] shrink-0">
-        <p className="font-bold text-[25px] tracking-[-1.25px] text-[#17171C] leading-none">
-          forma.
-        </p>
-
-        <nav className="flex md:flex-col gap-4 md:gap-[22px] text-[13px] md:text-[14px] overflow-x-auto">
-          {['Overview', 'Invoices', 'Clients', 'Transactions', 'Settings'].map((item) => (
-            <button
-              key={item}
-              type="button"
-              onClick={() => setActiveNav(item)}
-              className={`text-left whitespace-nowrap transition-colors ${
-                activeNav === item ? 'font-bold text-[#17171C]' : 'font-normal text-[#67676E] hover:text-[#17171C]'
-              }`}
-            >
-              {item}
-            </button>
-          ))}
-        </nav>
-
-        <p className="hidden md:block mt-auto font-mono text-[9px] text-[#67676E]">
-          DEMO ENVIRONMENT
-        </p>
-      </div>
-
-      {/* Main App Canvas */}
-      <div className="flex-1 flex flex-col gap-[20px] p-6 sm:p-[32px] min-w-0">
-        <div className="flex items-center justify-between gap-4">
-          <p className="font-bold text-[24px] sm:text-[28px] text-[#17171C] leading-normal">
-            {activeNav}
-          </p>
-          <button
-            type="button"
-            onClick={() => setFilter('All invoices')}
-            className="bg-[#3B82F6] hover:opacity-90 transition-opacity px-[12px] py-[10px] rounded-[4px] font-bold text-[11px] text-white whitespace-nowrap"
-          >
-            New invoice
-          </button>
-        </div>
-
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div className="flex flex-col gap-[6px]">
-            <span className="font-mono text-[10px] text-[#67676E]">TOTAL OUTSTANDING</span>
-            <span className="font-medium text-[34px] sm:text-[44px] text-[#17171C] leading-none">
-              $11,000.00
-            </span>
-          </div>
-
-          <div className="flex flex-col gap-[6px]">
-            <span className="font-mono text-[10px] text-[#67676E]">PAID THIS MONTH</span>
-            <span className="font-medium text-[22px] sm:text-[25px] text-[#17171C] leading-none">
-              $2,650.00
-            </span>
-          </div>
-        </div>
-
-        <div className="flex gap-[22px] font-medium text-[12px]">
-          {(['All invoices', 'Draft', 'Sent', 'Paid'] as const).map((tab) => (
-            <button
-              key={tab}
-              type="button"
-              onClick={() => setFilter(tab)}
-              className={`transition-colors ${
-                filter === tab ? 'text-[#3B82F6]' : 'text-[#67676E] hover:text-[#17171C]'
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        <div className="h-px bg-[#DADADD] w-full" />
-
-        <div className="flex flex-col gap-[16px]">
-          {filtered.map((inv) => (
-            <div key={inv.client} className="contents">
-              <div className="grid grid-cols-4 items-center gap-2 text-[12px]">
-                <span className="font-medium text-[13px] text-[#17171C] truncate">{inv.client}</span>
-                <span className="text-[#67676E]">{inv.date}</span>
-                <span
-                  className={`text-[11px] text-center ${
-                    inv.paid ? 'text-[#317448]' : 'text-[#67676E]'
-                  }`}
-                >
-                  {inv.status}
-                </span>
-                <span className="font-medium text-[13px] text-[#17171C] text-right">
-                  {inv.amount}
-                </span>
-              </div>
-              <div className="h-px bg-[#DADADD] w-full" />
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
@@ -583,10 +439,14 @@ function ProjectPreviewCard({
               exit={{ opacity: 0 }}
               transition={{ duration: 0.22 }}
             >
-              {project.id === 'yourgarage' && (
-                <YourGarageApp mobile={mode === 'mobile'} liveUrl={project.liveUrl} />
+              {(project.id === 'yourgarage' || project.id === 'synctrack') && (
+                <LiveIframeApp
+                  mobile={mode === 'mobile'}
+                  liveUrl={project.liveUrl}
+                  title={`${project.title} — ${project.headline}`}
+                  accentColor={project.accentColor}
+                />
               )}
-              {project.id === 'forma' && <FormaApp mobile={mode === 'mobile'} />}
               {project.id === 'devflow' && <DevflowApp mobile={mode === 'mobile'} />}
             </motion.div>
           ) : (

@@ -105,173 +105,6 @@ function LiveIframeApp({
   );
 }
 
-function DevflowApp({ mobile }: { mobile?: boolean }) {
-  const [activeNav, setActiveNav] = useState('My workspace');
-  const [activeTab, setActiveTab] = useState<'Board' | 'Timeline' | 'Files'>('Board');
-
-  if (mobile) {
-    return (
-      <div className="bg-[#0D0D11] flex h-[474px] items-center justify-center p-4 w-full">
-        <div className="bg-[#101014] border-[5px] border-[#3E3E45] flex h-[430px] items-start overflow-hidden rounded-[18px] w-[302px]">
-          <div className="flex flex-1 flex-col gap-[20px] h-full p-[20px] min-w-0">
-            <p className="font-bold text-[23px] text-[#F4F4F6] leading-normal">Website launch</p>
-
-            <div className="flex gap-[26px] font-medium text-[12px]">
-              {(['Board', 'Timeline', 'Files'] as const).map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => setActiveTab(t)}
-                  className={activeTab === t ? 'text-[#A3E635]' : 'text-[#92929B]'}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
-
-            <div className="h-px bg-[#29292F] w-full" />
-
-            <div className="flex flex-col gap-[14px]">
-              <div className="flex items-center justify-between font-mono text-[10px]">
-                <span className="text-[#92929B]">IN PROGRESS</span>
-                <span className="text-[#A3E635]">02</span>
-              </div>
-
-              <div className="bg-[#1C1C22] border border-[#29292F] rounded-[5px] p-[18px] flex flex-col gap-[12px]">
-                <span className="font-mono text-[9px] text-[#A3E635]">FRONTEND</span>
-                <span className="font-medium text-[15px] text-[#F4F4F6]">Build dashboard shell</span>
-                <span className="text-[10px] text-[#92929B]">React / TypeScript</span>
-              </div>
-
-              <div className="bg-[#1C1C22] border border-[#29292F] rounded-[5px] p-[18px] flex flex-col gap-[12px]">
-                <span className="font-mono text-[9px] text-[#A3E635]">BACKEND</span>
-                <span className="font-medium text-[15px] text-[#F4F4F6]">Connect activity feed</span>
-                <span className="text-[10px] text-[#92929B]">API / Integration</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="bg-[#101014] flex flex-col md:flex-row min-h-[474px] w-full">
-      {/* Sidebar */}
-      <div className="bg-[#16161B] flex flex-row md:flex-col justify-between md:justify-start gap-6 md:gap-[30px] p-5 md:p-[24px] md:w-[208px] shrink-0 border-b md:border-b-0 md:border-r border-[#222228]/60">
-        <p className="font-bold text-[25px] tracking-[-1.25px] text-[#F4F4F6] leading-none">
-          devflow.
-        </p>
-
-        <nav className="flex md:flex-col gap-4 md:gap-[22px] text-[13px] md:text-[14px] overflow-x-auto">
-          {['My workspace', 'Projects', 'My tasks', 'Activity', 'Settings'].map((item) => (
-            <button
-              key={item}
-              type="button"
-              onClick={() => setActiveNav(item)}
-              className={`text-left whitespace-nowrap transition-colors ${
-                activeNav === item ? 'font-bold text-[#F4F4F6]' : 'font-normal text-[#92929B] hover:text-[#F4F4F6]'
-              }`}
-            >
-              {item}
-            </button>
-          ))}
-        </nav>
-
-        <p className="hidden md:block mt-auto font-mono text-[9px] text-[#92929B]">
-          DEMO ENVIRONMENT
-        </p>
-      </div>
-
-      {/* Main App Canvas */}
-      <div className="flex-1 flex flex-col gap-[20px] p-6 sm:p-[32px] min-w-0">
-        <div className="flex items-center justify-between gap-4">
-          <p className="font-bold text-[24px] sm:text-[28px] text-[#F4F4F6] leading-normal">
-            Website launch
-          </p>
-          <button
-            type="button"
-            onClick={() => setActiveTab('Board')}
-            className="bg-[#A3E635] hover:opacity-90 transition-opacity px-[12px] py-[10px] rounded-[4px] font-bold text-[11px] text-[#141418] whitespace-nowrap"
-          >
-            New task
-          </button>
-        </div>
-
-        <div className="flex gap-[30px] font-medium text-[12px]">
-          {(['Board', 'Timeline', 'Files'] as const).map((t) => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => setActiveTab(t)}
-              className={`transition-colors ${
-                activeTab === t ? 'text-[#A3E635]' : 'text-[#92929B] hover:text-[#F4F4F6]'
-              }`}
-            >
-              {t}
-            </button>
-          ))}
-        </div>
-
-        <div className="h-px bg-[#29292F] w-full" />
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-[16px]">
-          <div className="flex flex-col gap-[16px]">
-            <div className="flex items-center justify-between font-mono text-[10px]">
-              <span className="text-[#92929B]">TO DO</span>
-              <span className="text-[#A3E635]">02</span>
-            </div>
-            <div className="bg-[#1C1C22] border border-[#29292F] rounded-[5px] p-[18px] flex flex-col gap-[14px]">
-              <span className="font-mono text-[9px] text-[#A3E635]">DESIGN</span>
-              <span className="font-medium text-[15px] text-[#F4F4F6]">Review onboarding flow</span>
-              <span className="text-[10px] text-[#92929B]">Design / Interface</span>
-            </div>
-            <div className="bg-[#1C1C22] border border-[#29292F] rounded-[5px] p-[18px] flex flex-col gap-[14px]">
-              <span className="font-mono text-[9px] text-[#A3E635]">BACKEND</span>
-              <span className="font-medium text-[15px] text-[#F4F4F6]">Define auth endpoints</span>
-              <span className="text-[10px] text-[#92929B]">API / Security</span>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-[16px]">
-            <div className="flex items-center justify-between font-mono text-[10px]">
-              <span className="text-[#92929B]">IN PROGRESS</span>
-              <span className="text-[#A3E635]">02</span>
-            </div>
-            <div className="bg-[#1C1C22] border border-[#29292F] rounded-[5px] p-[18px] flex flex-col gap-[14px]">
-              <span className="font-mono text-[9px] text-[#A3E635]">FRONTEND</span>
-              <span className="font-medium text-[15px] text-[#F4F4F6]">Build dashboard shell</span>
-              <span className="text-[10px] text-[#92929B]">React / TypeScript</span>
-            </div>
-            <div className="bg-[#1C1C22] border border-[#29292F] rounded-[5px] p-[18px] flex flex-col gap-[14px]">
-              <span className="font-mono text-[9px] text-[#A3E635]">BACKEND</span>
-              <span className="font-medium text-[15px] text-[#F4F4F6]">Connect activity feed</span>
-              <span className="text-[10px] text-[#92929B]">API / Integration</span>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-[16px]">
-            <div className="flex items-center justify-between font-mono text-[10px]">
-              <span className="text-[#92929B]">DONE</span>
-              <span className="text-[#A3E635]">02</span>
-            </div>
-            <div className="bg-[#1C1C22] border border-[#29292F] rounded-[5px] p-[18px] flex flex-col gap-[14px]">
-              <span className="font-mono text-[9px] text-[#A3E635]">FOUNDATION</span>
-              <span className="font-medium text-[15px] text-[#F4F4F6]">Initialize workspace</span>
-              <span className="text-[10px] text-[#92929B]">Infrastructure</span>
-            </div>
-            <div className="bg-[#1C1C22] border border-[#29292F] rounded-[5px] p-[18px] flex flex-col gap-[14px]">
-              <span className="font-mono text-[9px] text-[#A3E635]">DESIGN</span>
-              <span className="font-medium text-[15px] text-[#F4F4F6]">Define design tokens</span>
-              <span className="text-[10px] text-[#92929B]">Design system</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function ProjectPreviewCard({
   project,
   copy,
@@ -439,15 +272,12 @@ function ProjectPreviewCard({
               exit={{ opacity: 0 }}
               transition={{ duration: 0.22 }}
             >
-              {(project.id === 'yourgarage' || project.id === 'synctrack') && (
-                <LiveIframeApp
-                  mobile={mode === 'mobile'}
-                  liveUrl={project.liveUrl}
-                  title={`${project.title} — ${project.headline}`}
-                  accentColor={project.accentColor}
-                />
-              )}
-              {project.id === 'devflow' && <DevflowApp mobile={mode === 'mobile'} />}
+              <LiveIframeApp
+                mobile={mode === 'mobile'}
+                liveUrl={project.liveUrl}
+                title={`${project.title} — ${project.headline}`}
+                accentColor={project.accentColor}
+              />
             </motion.div>
           ) : (
             <motion.div

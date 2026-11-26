@@ -240,16 +240,16 @@ export const content: Record<Language, SiteContent> = {
           externalIcon: '/assets/figma/external-link-lime.svg',
           headline: 'Separate deploys from releases. Ship code dark.',
           subline:
-            'Feature control plane with kill switches, SHA-256 sticky percentage rollouts, 100-user rollout simulator, SignalR/SSE streaming, and Polar.sh billing.',
+            'Feature control plane with kill switches, SHA-256 sticky percentage rollouts, 100-user rollout simulator, custom-built TypeScript SDK, and SignalR/SSE streaming.',
           liveUrl: 'https://devflows.xyz',
-          tags: ['REACT / @DEVFLOWS/CLIENT', 'C# / .NET 9 / SIGNALR', 'SQLITE · MYSQL / POLAR.SH'],
-          systemPills: ['REACT / TYPESCRIPT', '@DEVFLOWS/CLIENT SDK', '.NET 9 / SIGNALR & SSE', 'POLAR.SH / RESEND'],
+          tags: ['REACT / TYPESCRIPT', 'C# / .NET 9 / SIGNALR', 'SQLITE · MYSQL / POLAR.SH'],
+          systemPills: ['REACT / TYPESCRIPT', 'CUSTOM TS SDK', '.NET 9 / SIGNALR & SSE', 'POLAR.SH / RESEND'],
           buildLabel: 'LIVE BUILD · DEVFLOWS.XYZ',
           systemNodes: [
             {
-              indexLabel: '01 / CONTROL PLANE & SDK',
-              title: 'React + @devflows/client',
-              subtitle: 'STUDIO / 100-USER SIMULATOR',
+              indexLabel: '01 / CLIENT & CUSTOM SDK',
+              title: 'React + TypeScript',
+              subtitle: 'STUDIO UI & CUSTOM-BUILT SDK',
             },
             {
               indexLabel: '02 / REAL-TIME ENGINE',
@@ -263,7 +263,7 @@ export const content: Record<Language, SiteContent> = {
             },
           ],
           systemSummary:
-            'TypeScript SDK (@devflows/client) streaming live flag updates over SignalR & SSE, backed by .NET 9 SHA-256 evaluation, Resend OTP auth, and Polar.sh webhooks.',
+            'Includes a custom-built TypeScript SDK (@devflows/client) streaming live flag updates over SignalR & SSE, backed by .NET 9 SHA-256 evaluation, Resend OTP auth, and Polar.sh webhooks.',
         },
       ],
     },
@@ -424,16 +424,16 @@ export const content: Record<Language, SiteContent> = {
           externalIcon: '/assets/figma/external-link-lime.svg',
           headline: 'Separa el código del lanzamiento. Despliega sin riesgo.',
           subline:
-            'Plano de control con kill switches, rollouts graduales SHA-256, simulador de 100 usuarios, streaming SignalR/SSE y facturación en Polar.sh.',
+            'Plano de control con kill switches, rollouts graduales SHA-256, simulador de 100 usuarios, SDK TypeScript propio y streaming SignalR/SSE.',
           liveUrl: 'https://devflows.xyz',
-          tags: ['REACT / @DEVFLOWS/CLIENT', 'C# / .NET 9 / SIGNALR', 'SQLITE · MYSQL / POLAR.SH'],
-          systemPills: ['REACT / TYPESCRIPT', '@DEVFLOWS/CLIENT SDK', '.NET 9 / SIGNALR & SSE', 'POLAR.SH / RESEND'],
+          tags: ['REACT / TYPESCRIPT', 'C# / .NET 9 / SIGNALR', 'SQLITE · MYSQL / POLAR.SH'],
+          systemPills: ['REACT / TYPESCRIPT', 'SDK TS PROPIO', '.NET 9 / SIGNALR & SSE', 'POLAR.SH / RESEND'],
           buildLabel: 'EN PRODUCCIÓN · DEVFLOWS.XYZ',
           systemNodes: [
             {
-              indexLabel: '01 / PLANO DE CONTROL Y SDK',
-              title: 'React + @devflows/client',
-              subtitle: 'STUDIO / SIMULADOR 100 USUARIOS',
+              indexLabel: '01 / CLIENTE Y SDK PROPIO',
+              title: 'React + TypeScript',
+              subtitle: 'STUDIO UI Y SDK PROPIO',
             },
             {
               indexLabel: '02 / MOTOR EN TIEMPO REAL',
@@ -447,7 +447,7 @@ export const content: Record<Language, SiteContent> = {
             },
           ],
           systemSummary:
-            'SDK TypeScript (@devflows/client) con actualizaciones en tiempo real vía SignalR y SSE, motor .NET 9 SHA-256, autenticación Resend OTP y webhooks Polar.sh.',
+            'Incluye un SDK en TypeScript creado desde cero (@devflows/client) con actualizaciones en vivo vía SignalR y SSE, motor .NET 9 SHA-256, autenticación Resend OTP y webhooks Polar.sh.',
         },
       ],
     },
